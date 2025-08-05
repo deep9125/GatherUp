@@ -1,5 +1,6 @@
-const Login = () => {
-  return(<>
+export default function Login(){
+  return (
+  <>
     <form action="POST" className="login">
       <h1>Login</h1>
         <label htmlFor="Username">Username</label>
@@ -9,5 +10,3 @@ const Login = () => {
     </form>
   </>);
 };
-
-export default Login;
