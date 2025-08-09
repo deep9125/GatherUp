@@ -6,7 +6,7 @@
   position: fixed;
 }
 
-/* Header Bar */
+/* ====== Header Bar ====== */
 .header {
   display: flex;
   justify-content: space-between;
@@ -16,14 +16,14 @@
   border-bottom: 1px solid #27272a;
 }
 
-/* Main Content Layout */
+/* ====== Main Content Layout ====== */
 .main-content {
   display: flex;
   flex: 1;
   margin-bottom: 20px;
 }
 
-/* Sidebar */
+/* ====== Sidebar ====== */
 .sidebar {
   width: 250px;
   padding: 15px;
@@ -65,6 +65,7 @@
   color: white;
 }
 
+/* ====== Event Details ====== */
 .event-name {
   font-weight: bold;
 }
@@ -74,7 +75,7 @@
   color: #a1a1aa;
 }
 
-/* Event Details */
+
 .event-details {
   flex: 1;
   padding: 20px;
@@ -85,7 +86,7 @@
   color: #d4d4d8;
 }
 
-/* Vertical Line */
+/* ====== Vertical Line ====== */
 .vertical-line {
   width: 1px;
   background-color: #27272a;
@@ -93,7 +94,7 @@
 }
 
 
-/* Logout Button */
+/* ====== Logout Button ====== */
 .logout-btn {
   background-color: #ef4444;
   color: white;

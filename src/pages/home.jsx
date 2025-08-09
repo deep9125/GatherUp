@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "../styles/Home.css"; // Ensure the path is correct based on your project structure
+import "../styles/Home.css"; 
 import EventDetail from "../component/EventDetail";
 import { getAuth, signOut } from "firebase/auth";
 

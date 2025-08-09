@@ -1,6 +1,5 @@
 import React from "react";
-import "../styles/Home.css"; // still uses the same styling
-
+import "../styles/Home.css"; 
 export default function EventDetail({ event }) {
   if (!event) {
     return (
