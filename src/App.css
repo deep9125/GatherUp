@@ -1,3 +1,120 @@
-.login {
-  background-color: pink;
+/* ====== Global Dark Theme ====== */
+body {
+  background-color: #0a0a0a;
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  padding: 0;
+  color: white;
+}
+
+/* ====== Container Styling ====== */
+.login-container {
+  max-width: 420px;
+  margin: 80px auto;
+  padding: 2rem;
+  background-color: #18181b;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  border: 1px solid #27272a;
+}
+
+
+/* ====== Titles ====== */
+.login-title{
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: #f4f4f5;
+}
+
+/* ====== Input Fields ====== */
+.input-field {
+  width: 94%;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 8px;
+  border: 1px solid #27272a;
+  background-color: #09090b;
+  color: white;
+  font-size: 0.95rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.5);
+}
+
+/* ====== Buttons ====== */
+.btn {
+  display: inline-block;
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 8px;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.15s;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn.primary {
+  background-color: #6366f1;
+  color: white;
+}
+
+.btn.primary:hover {
+  background-color: #4f46e5;
+}
+
+.btn.secondary {
+  background-color: #27272a;
+  color: #e4e4e7;
+}
+
+.btn.secondary:hover {
+  background-color: #3f3f46;
+}
+
+.btn.google {
+  background-color: #ea4335;
+  color: white;
+}
+
+.btn.google:hover {
+  background-color: #c5221f;
+}
+
+/* ====== Divider ====== */
+.divider {
+  margin: 20px 0;
+  color: #a1a1aa;
+  font-size: 0.8rem;
+  position: relative;
+  text-align: center;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 40%;
+  height: 1px;
+  background-color: #27272a;
+}
+
+.divider::before {
+  left: 0;
+}
+
+.divider::after {
+  right: 0;
 }
