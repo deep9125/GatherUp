@@ -7,7 +7,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword
 } from "firebase/auth";
-import Home from "./Home";
+import Home from "./home";
 
 export default function Login() {
   const [user, setUser] = useState(null);

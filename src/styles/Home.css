@@ -4,6 +4,8 @@
   display: flex;
   flex-direction: column;
   width: 100%;
+  background-color: #0a0a0b; /* dark background */
+  color: #f4f4f5; /* light text */
 }
 
 /* ====== Header Bar ====== */
@@ -14,6 +16,7 @@
   align-items: center;
   background-color: #18181b;
   padding: 12px 20px;
+  color: #f4f4f5;
 }
 
 /* ====== Main Content Layout ====== */
@@ -26,12 +29,14 @@
 .sidebar {
   width: 280px;
   padding: 20px;
+  background-color: #0f0f11;
+  color: #f4f4f5;
 }
 
 .event-list {
   flex: 1;
-  overflow-y: auto; /* allows scrolling if content overflows */
-  max-height: calc(100vh - 217px); /* keeps it inside the viewport minus header height */
+  overflow-y: auto;
+  max-height: calc(100vh - 247px);
 }
 
 .sidebar h2 {
@@ -53,13 +58,14 @@
   margin-bottom: 5px;
   display: flex;
   flex-direction: column;
-  background-color: #09090b;
+  background-color: #18181b;
   border: 1px solid #27272a;
   transition: 0.2s;
+  color: #e5e7eb;
 }
 
 .sidebar li:hover {
-  background-color: #1f1f23;
+  background-color: #27272a;
 }
 
 .sidebar li.active {
@@ -67,34 +73,61 @@
   color: white;
 }
 
-.sidebar-header{
+.sidebar-header {
   position: relative;
 }
 
-/* ====== For Hide Scroll Line ====== */
+/* ====== Hide Scrollbar ====== */
 .event-list::-webkit-scrollbar {
-  display: none; /* Safari and Chrome */
+  display: none; 
 }
 
-/* ====== Event Details ====== */
-.event-name {
-  font-weight: bold;
-}
-
-.event-date {
-  font-size: 0.85rem;
-  color: #a1a1aa;
-}
-
-
+/* ===== Event Detail ===== */
 .event-details {
-  flex: 1;
+  background: #18181b;
   padding: 20px;
+  max-width: 600px;
+  margin: 20px auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+  text-align: center;
+  color: #f4f4f5;
+}
+
+.event-details h1 {
+  margin-bottom: 10px;
+  font-size: 24px;
+  color: #f9fafb;
 }
 
 .event-details p {
   margin: 8px 0;
-  color: #d4d4d8;
+  color: #d1d5db;
+  line-height: 1.4;
+}
+
+.event-details strong {
+  color: #e5e7eb;
+}
+
+.event-details img {
+  max-width: 100%;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.6);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 600px) {
+  .add-event-form,
+  .event-details {
+    margin: 10px;
+    padding: 15px;
+  }
+
+  .event-details h1 {
+    font-size: 20px;
+  }
 }
 
 /* ====== Vertical Line ====== */
@@ -103,7 +136,6 @@
   background-color: #27272a;
   height: auto;
 }
-
 
 /* ====== Logout Button ====== */
 .logout-btn {
@@ -122,38 +154,106 @@
   background-color: #dc2626;
 }
 
-/* ====== Add Event ====== */
+/* ===== Add Event Form ===== */
 .add-event-form {
-  padding: 1rem;
-  max-width: 400px;
+  background: #18181b;
+  padding: 20px;
+  width: 70%;
+  margin: 20px auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+  color: #f4f4f5;
 }
 
-.add-event-form form label {
-  display: block;
-  margin-bottom: 12px;
+.add-event-form h3 {
+  margin-left: 38%;
+  margin-bottom: 27px;
+  color: #f9fafb;
+  font-size: 30px;
 }
 
-.add-event-form form input,
-.add-event-form form textarea {
-  width: 100%;
-  padding: 6px 8px;
-  margin-top: 4px;
-  box-sizing: border-box;
+.add-event-form form {
+  display: flex;
+  flex-direction: column;
+  padding: 4px;
 }
 
-.add-event-form form button {
-  padding: 8px 12px;
-  cursor: pointer;
+.add-event-form label {
+  font-weight: 500;
+  margin-bottom: 29px;
+  margin-left: 15px;
+  color: #e5e7eb;
+  font-size: 16px;
 }
 
-.btn.add-event-btn {
-  background-color: #4caf50;
-  color: white;
+.add-event-form input[type="text"],
+.add-event-form input[type="date"],
+.add-event-form input[type="file"],
+.add-event-form textarea {
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #3f3f46;
+  background-color: #0f0f11;
+  color: #f4f4f5;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.2s ease-in-out;
+}
+
+.add-event-form input:focus,
+.add-event-form textarea:focus {
+  border-color: #6366f1;
+}
+
+.add-event-form textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* === Description Label & Textarea Inline === */
+.add-event-form label.description-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.add-event-form label.description-label textarea {
+  flex: 1;
+  min-height: 60px;
+  resize: vertical;
+}
+
+/* === Buttons in One Row & Equal Width === */
+.add-event-form .button-row {
+  display: flex;
+  gap: 10px;
+}
+
+.add-event-form .button-row button {
+  flex: 1;
+  margin-top: 12px;
+  padding: 10px 14px;
+  font-size: 14px;
   border: none;
-  padding: 8px 12px;
+  border-radius: 6px;
   cursor: pointer;
-  font-weight: bold;
-  border-radius: 4px;
+  transition: background 0.2s ease-in-out;
 }
 
+.add-event-form .button-row button[type="submit"] {
+  background: #6366f1;
+  color: white;
+}
 
+.add-event-form .button-row button[type="submit"]:hover {
+  background: #4f46e5;
+}
+
+.add-event-form .button-row button[type="button"] {
+  background: #3f3f46;
+  color: #f4f4f5;
+}
+
+.add-event-form .button-row button[type="button"]:hover {
+  background: #52525b;
+}
