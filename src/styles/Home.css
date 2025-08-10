@@ -71,6 +71,11 @@
   position: relative;
 }
 
+/* ====== For Hide Scroll Line ====== */
+.event-list::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
+}
+
 /* ====== Event Details ====== */
 .event-name {
   font-weight: bold;
