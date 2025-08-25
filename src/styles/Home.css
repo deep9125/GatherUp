@@ -1,259 +1,394 @@
-/* ====== Overall Layout ====== */
-.home-container {
-  position: fixed;
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  background-color: #0a0a0b; /* dark background */
-  color: #f4f4f5; /* light text */
+/* ============================================= */
+/* UNIFIED DARK THEME STYLES (ENHANCED) */
+/* ============================================= */
+
+/* --- Theme Variables --- */
+:root {
+  --background-primary: #0a0a0b;
+  --background-secondary: #18181b;
+  --background-tertiary: #0f0f11;
+  --border-color: #27272a;
+  --text-primary: #f4f4f5;
+  --text-secondary: #a1a1aa;
+  --accent-color: #6366f1;
+  --accent-hover: #4f46e5;
+  --danger-color: #ef4444;
+  --danger-hover: #dc2626;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+  --border-radius: 8px;
+  /* ✨ NEW: Added a variable for transition speed */
+  --transition-speed: 0.2s ease;
 }
 
-/* ====== Header Bar ====== */
+/* ✨ NEW: Custom scrollbar that matches the dark theme */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--background-tertiary);
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--border-color);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: #3f3f46;
+}
+
+
+/* --- Overall Layout --- */
+.home-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  background-color: var(--background-primary);
+  color: var(--text-primary);
+  overflow: hidden;
+}
+
 .header {
-  height: 40px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #18181b;
-  padding: 12px 20px;
-  color: #f4f4f5;
+  background-color: var(--background-secondary);
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--border-color);
 }
 
-/* ====== Main Content Layout ====== */
 .main-content {
   display: flex;
   flex: 1;
+  overflow: hidden;
 }
 
-/* ====== Sidebar ====== */
 .sidebar {
   width: 280px;
+  min-width: 280px;
   padding: 20px;
-  background-color: #0f0f11;
-  color: #f4f4f5;
-}
-
-.event-list {
-  flex: 1;
-  overflow-y: auto;
-  max-height: calc(100vh - 247px);
-}
-
-.sidebar h2 {
-  margin-bottom: 15px;
-  font-size: 1.2rem;
-  border-bottom: 2px solid #27272a;
-  padding-bottom: 5px;
-}
-
-.sidebar ul {
-  list-style: none;
-  padding: 0;
-}
-
-.sidebar li {
-  padding: 10px;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-bottom: 5px;
+  background-color: var(--background-tertiary);
   display: flex;
   flex-direction: column;
-  background-color: #18181b;
-  border: 1px solid #27272a;
-  transition: 0.2s;
-  color: #e5e7eb;
 }
 
-.sidebar li:hover {
-  background-color: #27272a;
+.sidebar-header h2 {
+  font-size: 1.2rem;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-color);
 }
 
-.sidebar li.active {
-  background-color: #6366f1;
-  color: white;
+.content-area {
+  flex: 1;
+  overflow-y: auto;
 }
 
-.sidebar-header {
-  position: relative;
-}
-
-/* ====== Hide Scrollbar ====== */
-.event-list::-webkit-scrollbar {
-  display: none; 
-}
-
-/* ===== Event Detail ===== */
-.event-details {
-  background: #18181b;
-  padding: 20px;
-  max-width: 600px;
-  margin: 20px auto;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
-  text-align: center;
-  color: #f4f4f5;
-}
-
-.event-details h1 {
-  margin-bottom: 10px;
-  font-size: 24px;
-  color: #f9fafb;
-}
-
-.event-details p {
-  margin: 8px 0;
-  color: #d1d5db;
-  line-height: 1.4;
-}
-
-.event-details strong {
-  color: #e5e7eb;
-}
-
-.event-details img {
-  max-width: 100%;
-  border-radius: 10px;
-  margin-bottom: 15px;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.6);
-}
-
-/* ===== Responsive ===== */
-@media (max-width: 600px) {
-  .add-event-form,
-  .event-details {
-    margin: 10px;
-    padding: 15px;
-  }
-
-  .event-details h1 {
-    font-size: 20px;
-  }
-}
-
-/* ====== Vertical Line ====== */
 .vertical-line {
   width: 1px;
-  background-color: #27272a;
-  height: auto;
+  background-color: var(--border-color);
 }
 
-/* ====== Logout Button ====== */
-.logout-btn {
-  background-color: #ef4444;
-  color: white;
+/* --- Shared Button Styles --- */
+.btn {
   padding: 8px 16px;
   border: none;
   border-radius: 6px;
   font-size: 0.9rem;
-  cursor: pointer;
-  width: 7%;
-  transition: background-color 0.2s ease;
-}
-
-.logout-btn:hover {
-  background-color: #dc2626;
-}
-
-/* ===== Add Event Form ===== */
-.add-event-form {
-  background: #18181b;
-  padding: 20px;
-  width: 70%;
-  margin: 20px auto;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
-  color: #f4f4f5;
-}
-
-.add-event-form h3 {
-  margin-left: 38%;
-  margin-bottom: 27px;
-  color: #f9fafb;
-  font-size: 30px;
-}
-
-.add-event-form form {
-  display: flex;
-  flex-direction: column;
-  padding: 4px;
-}
-
-.add-event-form label {
   font-weight: 500;
-  margin-bottom: 29px;
-  margin-left: 15px;
-  color: #e5e7eb;
-  font-size: 16px;
-}
-
-.add-event-form input[type="text"],
-.add-event-form input[type="date"],
-.add-event-form input[type="file"],
-.add-event-form textarea {
-  padding: 10px;
-  font-size: 14px;
-  border: 1px solid #3f3f46;
-  background-color: #0f0f11;
-  color: #f4f4f5;
-  border-radius: 6px;
-  outline: none;
-  transition: border-color 0.2s ease-in-out;
-}
-
-.add-event-form input:focus,
-.add-event-form textarea:focus {
-  border-color: #6366f1;
-}
-
-.add-event-form textarea {
-  min-height: 80px;
-  resize: vertical;
-}
-
-/* === Description Label & Textarea Inline === */
-.add-event-form label.description-label {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.add-event-form label.description-label textarea {
-  flex: 1;
-  min-height: 60px;
-  resize: vertical;
-}
-
-/* === Buttons in One Row & Equal Width === */
-.add-event-form .button-row {
-  display: flex;
-  gap: 10px;
-}
-
-.add-event-form .button-row button {
-  flex: 1;
-  margin-top: 12px;
-  padding: 10px 14px;
-  font-size: 14px;
-  border: none;
-  border-radius: 6px;
   cursor: pointer;
-  transition: background 0.2s ease-in-out;
+  /* ✨ CHANGE: Using the transition variable for consistency */
+  transition: all var(--transition-speed);
 }
-
-.add-event-form .button-row button[type="submit"] {
-  background: #6366f1;
+.logout-btn {
+  background-color: var(--danger-color);
   color: white;
 }
-
-.add-event-form .button-row button[type="submit"]:hover {
-  background: #4f46e5;
+.logout-btn:hover {
+  background-color: var(--danger-hover);
+  transform: translateY(-2px); /* ✨ NEW: Subtle lift on hover */
+}
+.dashboard-btn, .add-event-btn {
+  background-color: var(--accent-color);
+  color: white;
+}
+.dashboard-btn {
+  margin-right: 12px;
+}
+.dashboard-btn:hover, .add-event-btn:hover {
+  background-color: var(--accent-hover);
+  transform: translateY(-2px); /* ✨ NEW: Subtle lift on hover */
 }
 
-.add-event-form .button-row button[type="button"] {
-  background: #3f3f46;
-  color: #f4f4f5;
+
+/* ============================================= */
+/* MANAGER-SPECIFIC STYLES              */
+/* ============================================= */
+.event-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 1rem;
+  flex: 1;
+  overflow-y: auto;
+}
+.event-list li {
+  padding: 12px;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  margin-bottom: 8px;
+  background-color: var(--background-secondary);
+  border: 1px solid var(--border-color);
+  transition: all var(--transition-speed);
+  color: var(--text-primary);
+}
+.event-list li:hover {
+  background-color: var(--border-color);
+  border-left: 4px solid var(--accent-color); /* ✨ NEW: Highlight on hover */
+  padding-left: 8px;
+}
+.event-list li.active {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+  color: white;
+  transform: scale(1.02); /* ✨ NEW: Active item is slightly larger */
 }
 
-.add-event-form .button-row button[type="button"]:hover {
-  background: #52525b;
+
+/* ============================================= */
+/* USER-SPECIFIC STYLES                */
+/* ============================================= */
+.navigation-sidebar .sidebar-header {
+  text-align: center;
+  border-bottom: 1px solid var(--border-color);
+}
+.navigation-menu {
+  list-style: none;
+  padding: 0;
+  margin-top: 1rem;
+}
+.navigation-menu li {
+  padding: 1rem;
+  cursor: pointer;
+  border-radius: var(--border-radius);
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  transition: all var(--transition-speed);
+  border: 1px solid transparent;
+  border-left: 4px solid transparent;
+}
+.navigation-menu li:hover {
+  background-color: var(--border-color);
+  border-left: 4px solid var(--accent-color); /* ✨ NEW: Highlight on hover */
+}
+.navigation-menu li.active {
+  background-color: var(--accent-color);
+  border-color: var(--accent-color);
+  color: white;
+  transform: scale(1.02); /* ✨ NEW: Active item is slightly larger */
+}
+
+/* ✨ NEW: Keyframes for card animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.event-grid-container {
+  padding: 2rem;
+}
+.event-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+.event-card {
+  background-color: var(--background-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1rem;
+  transition: all var(--transition-speed);
+  animation: fadeInUp 0.5s ease forwards; /* ✨ NEW: Card entrance animation */
+}
+.event-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--accent-color);
+}
+.event-card-date {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin: 0.5rem 0;
+}
+.event-card-desc {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  flex-grow: 1;
+  color: var(--text-secondary);
+}
+.event-card .btn {
+  width: 100%;
+  margin-top: 1rem;
+  background-color: var(--accent-color);
+  color: white;
+}
+.event-card .btn:hover {
+  background-color: var(--accent-hover);
+  transform: translateY(-2px);
+}
+
+/* --- User & Manager Dashboards --- */
+.dashboard-container, .event-detail-container, .add-event-form-container {
+  padding: 2rem;
+}
+.dashboard-stats {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+.stat-card {
+  flex: 1;
+  background-color: var(--background-secondary);
+  border: 1px solid var(--border-color);
+  padding: 1.5rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  text-align: center;
+  transition: all var(--transition-speed);
+}
+.stat-card:hover {
+    transform: translateY(-5px); /* ✨ NEW: Card lift on hover */
+    border-color: var(--accent-color);
+}
+.stat-card h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
+  color: var(--accent-color);
+}
+.stat-card p {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+
+/* ============================================= */
+/* FORMS & DETAILS                  */
+/* ============================================= */
+.add-event-form-container {
+  padding: 2rem;
+  max-width: 700px;
+  margin: 0 auto;
+}
+.form-group input, .form-group textarea {
+  transition: all var(--transition-speed); /* ✨ CHANGE: Better transition */
+}
+.form-group input:focus, .form-group textarea:focus {
+  border-color: var(--accent-color);
+  /* ✨ NEW: "Glow" effect for better focus visibility */
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+}
+
+/* Style for the file input to match other inputs */
+input[type="file"] {
+  padding: 10px;
+  font-size: 0.9rem;
+  border: 1px solid var(--border-color);
+  background-color: var(--background-tertiary);
+  color: var(--text-secondary);
+  border-radius: 6px;
+  outline: none;
+  transition: all var(--transition-speed);
+}
+input[type="file"]:hover {
+  border-color: var(--accent-color);
+}
+.image-preview {
+  width: 100%;
+  max-height: 300px;
+  object-fit: cover;
+  border-radius: var(--border-radius);
+  margin-top: 1rem;
+  border: 1px solid var(--border-color);
+}
+.form-actions {
+  display: flex; /* This was missing, adding for alignment */
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+  gap: 1rem; /* This was missing, adding for spacing */
+}
+.form-actions .btn {
+  flex: 0 1 150px;
+}
+.form-actions .btn.primary {
+  background-color: var(--accent-color);
+  color: white;
+}
+.form-actions .btn.primary:hover {
+  background-color: var(--accent-hover);
+  transform: translateY(-2px);
+}
+.form-actions .btn.secondary {
+  background-color: var(--border-color);
+  color: var(--text-primary);
+}
+.form-actions .btn.secondary:hover {
+  background-color: #3f3f46;
+  transform: translateY(-2px);
+}
+
+.managed-events-list {
+  margin-top: 3rem;
+}
+
+.managed-events-list h3 {
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.5rem;
+}
+
+.event-list-item {
+  background-color: var(--background-secondary);
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  margin-bottom: 1rem;
+  border: 1px solid var(--border-color);
+}
+
+.event-list-item .event-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.event-list-item h4 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.event-list-item span {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 10px;
+  background-color: var(--background-tertiary);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: var(--accent-color);
+  border-radius: 10px;
+  transition: width 0.5s ease-in-out;
 }

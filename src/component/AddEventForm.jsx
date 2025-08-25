@@ -5,85 +5,80 @@ export default function AddEventForm({ onAddEvent, onClose }) {
   const [name, setName] = useState("");
   const [date, setDate] = useState("");
   const [description, setDescription] = useState("");
-  const [image, setImage] = useState(null); // Store file
-  const [preview, setPreview] = useState(null); // For preview
+  const [image, setImage] = useState(null); // This now only stores the selected file
 
+  // The handleImageChange function is now much simpler
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       setImage(file);
-
-      // Generate preview
-      const reader = new FileReader();
-      reader.onloadend = () => setPreview(reader.result);
-      reader.readAsDataURL(file);
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!name || !date || !description || !image)
+    if (!name || !date || !description || !image) {
       return alert("All fields including image are required");
-
-    // Call parent with event data
-    onAddEvent({ name, date, description, image });
-
-    // Reset form
-    setName("");
-    setDate("");
-    setDescription("");
-    setImage(null);
-    setPreview(null);
-
+    }
+    // We pass the image file object itself (or its name) instead of a preview
+    onAddEvent({ name, date, description, image: image });
     onClose();
   };
 
   return (
-    <div className="add-event-form">
-      <h3>Add New Event</h3>
+    <div className="add-event-form-container">
+      <h2>Create New Event</h2>
       <form onSubmit={handleSubmit}>
-        
-        <label className="description-label">
-          Event Name: <span style={{ color: "red" }}>*</span>
+        <div className="form-group">
+          <label htmlFor="eventName">Event Name</label>
           <input
+            id="eventName"
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Event name"
+            placeholder="e.g., Annual Tech Conference"
           />
-        </label>
+        </div>
 
-        <label className="description-label">
-          Date: <span style={{ color: "red" }}>*</span>
+        <div className="form-group">
+          <label htmlFor="eventDate">Date</label>
           <input
+            id="eventDate"
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
           />
-        </label>
+        </div>
 
-        <label className="description-label">
-          Description: <span style={{ color: "red" }}>*</span>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Event description"
-          />
-        </label>
-        
-        <label className="description-label">
-          Event Image: <span style={{ color: "red" }}>*</span>
+        <div className="form-group">
+          <label htmlFor="eventImage">Event Image</label>
           <input
+            id="eventImage"
             type="file"
             accept="image/*"
             onChange={handleImageChange}
           />
-        </label>
+        </div>
 
-        <div className="button-row">
-          <button type="submit">Add Event</button>
-          <button type="button" onClick={onClose} style={{ marginLeft: 8 }}>
+        {/* --- The image preview line has been removed --- */}
+
+        <div className="form-group">
+          <label htmlFor="eventDescription">Description</label>
+          <textarea
+            id="eventDescription"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Describe your event..."
+            rows="5"
+          />
+        </div>
+
+        <div className="form-actions">
+          <button type="button" className="btn secondary" onClick={onClose}>
             Cancel
+          </button>
+          <button type="submit" className="btn primary">
+            Add Event
           </button>
         </div>
       </form>

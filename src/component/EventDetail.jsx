@@ -1,42 +1,39 @@
+// src/component/EventDetail.jsx
 import React from "react";
 import "../styles/Home.css";
 
-export default function EventDetail({ event }) {
+// We now pass `userRole` to conditionally render buttons
+export default function EventDetail({ event, userRole }) {
   if (!event) {
     return (
-      <div className="event-details">
-        <p>Select an event to see details.</p>
+      <div className="event-detail-container">
+        <h2>Select an event to see the details</h2>
       </div>
     );
   }
 
-  // If the image is stored as a File (local) or URL (from backend)
-  const imageSrc =
-    event.image instanceof File
-      ? URL.createObjectURL(event.image)
-      : event.image || null;
+  const eventDate = new Date(event.date).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 
   return (
-    <div className="event-details">
-      <h1>{event.name}</h1>
-
-      {imageSrc && (
-        <img
-          src={imageSrc}
-          alt={event.name}
-          style={{
-            width: "100%",
-            maxWidth: "400px",
-            borderRadius: "10px",
-            marginBottom: "10px",
-          }}
-        />
+    <div className="event-detail-container scrollable">
+      <h2 className="event-title">{event.name}</h2>
+      <p className="event-date"><strong>Date:</strong> {eventDate}</p>
+      <div className="event-description"><p>{event.description}</p></div>
+      
+      {userRole === "Manager" && (
+        <div className="manager-actions">
+          <button className="btn primary">Edit Event</button>
+          <button className="btn secondary">Delete Event</button>
+        </div>
       )}
 
-      <p>
-        <strong>Date:</strong> {event.date}
-      </p>
-      <p>{event.description}</p>
+      {/* {userRole === "User" && (
+        <button className="btn primary join-btn">Join Now / Buy Ticket</button>
+      )}  */}
     </div>
   );
 }
