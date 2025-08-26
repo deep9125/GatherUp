@@ -3,7 +3,7 @@ import React from "react";
 import "../styles/Home.css";
 
 // We now pass `userRole` to conditionally render buttons
-export default function EventDetail({ event, userRole }) {
+export default function EventDetail({ event, userRole,handleEdit }) {
   if (!event) {
     return (
       <div className="event-detail-container">
@@ -26,7 +26,7 @@ export default function EventDetail({ event, userRole }) {
       
       {userRole === "Manager" && (
         <div className="manager-actions">
-          <button className="btn primary">Edit Event</button>
+          <button className="btn primary" onClick={() => handleEdit()} >Edit Event</button>
           <button className="btn secondary">Delete Event</button>
         </div>
       )}

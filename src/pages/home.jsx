@@ -6,12 +6,13 @@ import AddEventForm from "../component/AddEventForm";
 import ManagerDashboard from "../component/ManagerDashboard";
 import UserDashboard from "../component/UserDashboard";
 import EventCard from "../component/EventCard";
+import EditEventForm from "../component/EditEventForm"
 
 const mockUser = {
   uid: "test123",
   email: "test@gatherup.com",
   displayName: "TEST",
-  role: "User", // <-- CHANGE THIS TO "User" TO TEST THE OTHER VIEW
+  role: "Manager", // <-- CHANGE THIS TO "User" TO TEST THE OTHER VIEW
 };
 
 export default function Home() {
@@ -32,6 +33,19 @@ export default function Home() {
     setEvents(updatedEvents);
     setSelectedEvent(eventWithId);
     setView("eventDetail");
+  };
+  
+  const handleShowEditForm = () => {
+    setView("editForm");
+  };
+
+  const handleUpdateEvent = (updatedEventData) => {
+    const updatedEvents = events.map(event => 
+      event.id === updatedEventData.id ? updatedEventData : event
+    );
+    setEvents(updatedEvents);
+    setSelectedEvent(updatedEventData); // Also update the currently selected event
+    setView("eventDetail"); // Switch back to the detail view after updating
   };
 
   const handleJoinEvent = (eventId) => {
@@ -58,9 +72,11 @@ export default function Home() {
           return <AddEventForm onAddEvent={handleAddEvent} onClose={() => setView("eventDetail")} />;
         case "dashboard":
           return <ManagerDashboard user={mockUser}  />;
+        case "editForm":
+          return <EditEventForm event={selectedEvent} onUpdateEvent={handleUpdateEvent} onClose={() => setView("eventDetail")} />;
         case "eventDetail":
         default:
-          return <EventDetail event={selectedEvent} userRole={mockUser.role} />;
+          return <EventDetail event={selectedEvent} userRole={mockUser.role} handleEdit={handleShowEditForm}/>;
       }
     } else { // User Role
       switch (view) {
