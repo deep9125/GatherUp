@@ -48,7 +48,7 @@ export default function EditEventForm({ event, onUpdateEvent, onClose }) {
   }
 
   return (
-    <div className="form-container">
+    <div className="add-event-form-container">
       <h2>Edit Event: {event.name}</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-group">

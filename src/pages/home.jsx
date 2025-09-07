@@ -7,6 +7,8 @@ import ManagerDashboard from "../component/ManagerDashboard";
 import UserDashboard from "../component/UserDashboard";
 import EventCard from "../component/EventCard";
 import EditEventForm from "../component/EditEventForm"
+import CreateGroupForm from "../component/CreateGroupForm";
+import ViewGroup from "../component/ViewGroup";
 
 const mockUser = {
   uid: "test123",
@@ -20,6 +22,7 @@ export default function Home() {
   const [selectedEvent, setSelectedEvent] = useState(null);  //for Manager Which Event is Selected Currently
   const [joinedEvents, setJoinedEvents] = useState([]);  // for User List of all joined events
   const [view, setView] = useState(mockUser.role === "Manager" ? "eventDetail" : "allEvents");
+  const [eventsGroup, setEventsGroup] = useState([]); // New state for event group
 
   useEffect(() => {
     if (mockUser.role === "Manager" && events.length > 0 && !selectedEvent) {
@@ -70,6 +73,15 @@ export default function Home() {
     setSelectedEvent(event);
     setView("eventDetail");
   };
+
+  const handleCreateGroup = (event) => {
+    setEventsGroup([...eventsGroup, event]);
+    setView("createGroupForm");
+  }
+
+  const handleViewGroup = (event) => {
+    setView("viewGroup");
+  }
   
   const handleLogout = () => window.location.reload();
 
@@ -82,9 +94,21 @@ export default function Home() {
           return <ManagerDashboard user={mockUser}  />;
         case "editForm":
           return <EditEventForm event={selectedEvent} onUpdateEvent={handleUpdateEvent} onClose={() => setView("eventDetail")} />;
+        case "createGroupForm":
+          return <CreateGroupForm event={selectedEvent} onClose={() => setView("eventDetail")} />;
+        case "viewGroup":
+          return <ViewGroup event={selectedEvent} userRole={mockUser.role} onClose={() => setView("eventDetail")} />;
         case "eventDetail":
         default:
-          return <EventDetail event={selectedEvent} userRole={mockUser.role} handleEdit={handleShowEditForm} handleDelete={handleDeleteEvent} />;
+          return <EventDetail 
+                    event={selectedEvent} 
+                    userRole={mockUser.role} 
+                    handleEdit={handleShowEditForm} 
+                    handleDelete={handleDeleteEvent} 
+                    handleCreateGroup={handleCreateGroup} 
+                    hasCreatedGroup={eventsGroup.find(e => e.id === (selectedEvent ? selectedEvent.id : null))}
+                    handleViewGroup={handleViewGroup}
+                  />;
       }
     } else { // User Role
       switch (view) {
@@ -117,9 +141,9 @@ export default function Home() {
         <h3>🗓️ Gather Up</h3>
         <div className="header-actions">
           {mockUser.role === "Manager" && (
-            <button className="btn dashboard-btn" onClick={() => setView("dashboard")}>Manager Dashboard</button>
+            <button className="btn-dashboard-btn" onClick={() => setView("dashboard")}>Manager Dashboard</button>
           )}
-          <button className="btn logout-btn" onClick={handleLogout}>Logout</button>
+          <button className="btn-logout-btn" onClick={handleLogout}>Logout</button>
         </div>
       </header>
 

@@ -1,9 +1,11 @@
 // src/component/EventDetail.jsx
 import React from "react";
+import { useState } from "react";
 import "../styles/Home.css";
 
 // We now pass `userRole` to conditionally render buttons
-export default function EventDetail({ event, userRole, handleEdit, handleDelete }) {
+export default function EventDetail({ event, userRole, handleEdit, handleDelete, handleCreateGroup, hasCreatedGroup, handleViewGroup }) {
+  const [hasGroup, setHasGroup] = useState(hasCreatedGroup || false);
   if (!event) {
     return (
       <div className="event-detail-container">
@@ -23,17 +25,24 @@ export default function EventDetail({ event, userRole, handleEdit, handleDelete 
       <h2 className="event-title">{event.name}</h2>
       <p className="event-date"><strong>Date:</strong> {eventDate}</p>
       <div className="event-description"><p>{event.description}</p></div>
-      
+      <p className="event-location"><strong>Location:</strong> {event.location}</p>
+      <p className="event-capacity"><strong>Capacity:</strong> {event.capacity}</p>
+      <p className="event-price"><strong>Price:</strong> ${event.price}</p> 
+
+
       {userRole === "Manager" && (
         <div className="manager-actions">
-          <button className="btn primary" onClick={() => handleEdit()} >Edit Event</button>
-          <button className="btn secondary" onClick= {() => handleDelete(event.id)}>Delete Event</button>
+          <button onClick={() => handleEdit()} >Edit Event</button>
+          <button onClick= {() => handleDelete(event.id)}>Delete Event</button>
+          {hasCreatedGroup ? 
+            (<button onClick={() => handleViewGroup(event)}>View Group</button>)
+          : (<button onClick={() => handleCreateGroup(event)}>Create Group</button>)}
         </div>
       )}
 
-      {/* {userRole === "User" && (
+      {userRole === "User" && (
         <button className="btn primary join-btn">Join Now / Buy Ticket</button>
-      )}  */}
+      )} 
     </div>
   );
 }

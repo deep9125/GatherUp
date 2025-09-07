@@ -47,10 +47,52 @@
   overflow: hidden;
 }
 
+.header-actions{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-dashboard-btn{
+  background-color: var(--accent-color);
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-speed);
+}
+
+.btn-dashboard-btn:hover{
+  background-color: var(--accent-hover);
+  transform: translateY(-2px); /* ✨ NEW: Subtle lift on hover */
+}
+
+.btn-logout-btn{
+  background-color: red;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-speed);
+}
+
+.btn-logout-btn:hover{
+  background-color: #b91c1c;
+  transform: translateY(-2px); /* ✨ NEW: Subtle lift on hover */
+}
+
+
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  height: 40px;
   background-color: var(--background-secondary);
   padding: 12px 24px;
   border-bottom: 1px solid var(--border-color);
@@ -67,7 +109,7 @@
   min-width: 280px;
   padding: 20px;
   background-color: var(--background-tertiary);
-  display: flex;
+  display: flex;  
   flex-direction: column;
 }
 
@@ -125,20 +167,22 @@
 .event-list {
   list-style: none;
   padding: 0;
-  margin-top: 1rem;
+  margin-top: 10px;
+  margin-bottom: 0px;
   flex: 1;
   overflow-y: auto;
 }
 .event-list li {
-  padding: 12px;
+  padding: 7px;
   border-radius: var(--border-radius);
   cursor: pointer;
-  margin-bottom: 8px;
+  margin-bottom: 7px;
   background-color: var(--background-secondary);
   border: 1px solid var(--border-color);
   transition: all var(--transition-speed);
   color: var(--text-primary);
 }
+
 .event-list li:hover {
   background-color: var(--border-color);
   border-left: 4px solid var(--accent-color); /* ✨ NEW: Highlight on hover */
@@ -149,6 +193,51 @@
   border-color: var(--accent-color);
   color: white;
   transform: scale(1.02); /* ✨ NEW: Active item is slightly larger */
+}
+
+.manager-actions button {
+  flex: 1;
+  padding: 10px 16px;
+  margin: 10px;
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-speed);
+  box-shadow: var(--shadow);
+}
+
+/* Edit Event Button */
+.manager-actions button:nth-child(1) {
+  background-color: var(--accent-color);
+  color: white;
+}
+.manager-actions button:nth-child(1):hover {
+  background-color: var(--accent-hover);
+  transform: translateY(-2px);
+}
+
+/* Delete Event Button */
+.manager-actions button:nth-child(2) {
+  background-color: var(--danger-color);
+  color: white;
+}
+.manager-actions button:nth-child(2):hover {
+  background-color: var(--danger-hover);
+  transform: translateY(-2px);
+}
+
+/* Event Group Button */
+.manager-actions button:nth-child(3) {
+  background-color: var(--background-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+.manager-actions button:nth-child(3):hover {
+  background-color: var(--border-color);
+  color: var(--accent-color);
+  transform: translateY(-2px);
 }
 
 
@@ -282,63 +371,79 @@
 /* FORMS & DETAILS                  */
 /* ============================================= */
 .add-event-form-container {
-  padding: 2rem;
+  padding: 30px;
   max-width: 700px;
-  margin: 0 auto;
-}
-.form-group input, .form-group textarea {
-  transition: all var(--transition-speed); /* ✨ CHANGE: Better transition */
-}
-.form-group input:focus, .form-group textarea:focus {
-  border-color: var(--accent-color);
-  /* ✨ NEW: "Glow" effect for better focus visibility */
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+  margin: 20px auto; /* center the form */
+  background-color: var(--background-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  animation: fadeInUp 0.5s ease; /* ✨ smooth entrance */
 }
 
-/* Style for the file input to match other inputs */
-input[type="file"] {
-  padding: 10px;
-  font-size: 0.9rem;
-  border: 1px solid var(--border-color);
-  background-color: var(--background-tertiary);
+.add-event-form-container h2 {
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+  color: var(--accent-color);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.5rem;
+}
+
+/* Form group styling */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
   color: var(--text-secondary);
-  border-radius: 6px;
-  outline: none;
+}
+
+.form-group input,
+.form-group textarea {
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background-color: var(--background-tertiary);
+  color: var(--text-primary);
+  font-size: 0.95rem;
   transition: all var(--transition-speed);
 }
-input[type="file"]:hover {
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
   border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3); /* ✨ glow effect */
 }
-.image-preview {
-  width: 100%;
-  max-height: 300px;
-  object-fit: cover;
-  border-radius: var(--border-radius);
-  margin-top: 1rem;
-  border: 1px solid var(--border-color);
-}
+
+/* Action buttons */
 .form-actions {
-  display: flex; /* This was missing, adding for alignment */
+  display: flex;
   justify-content: flex-end;
+  gap: 1rem;
   margin-top: 1.5rem;
-  gap: 1rem; /* This was missing, adding for spacing */
 }
-.form-actions .btn {
-  flex: 0 1 150px;
-}
-.form-actions .btn.primary {
+
+.form-actions .submit-btn {
   background-color: var(--accent-color);
   color: white;
 }
-.form-actions .btn.primary:hover {
+
+.form-actions .submit-btn:hover {
   background-color: var(--accent-hover);
   transform: translateY(-2px);
 }
-.form-actions .btn.secondary {
+
+.form-actions .cancel-btn {
   background-color: var(--border-color);
   color: var(--text-primary);
 }
-.form-actions .btn.secondary:hover {
+
+.form-actions .cancel-btn:hover {
   background-color: #3f3f46;
   transform: translateY(-2px);
 }
@@ -391,4 +496,194 @@ input[type="file"]:hover {
   background-color: var(--accent-color);
   border-radius: 10px;
   transition: width 0.5s ease-in-out;
+}
+
+
+/* ============================================= */
+/* CREATE GROUP FORM STYLES          */
+/* ============================================= */
+
+
+.create-group-form {
+  padding: 30px;
+  max-width: 500px;
+  margin: 20px auto;
+  background-color: var(--background-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  animation: fadeInUp 0.4s ease;
+}
+
+.create-group-form h2 {
+  margin-bottom: 1.5rem;
+  font-size: 1.4rem;
+  color: var(--accent-color);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.5rem;
+}
+
+/* Form group */
+.create-group-form .form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.5rem;
+}
+
+.create-group-form .form-group label {
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-secondary);
+}
+
+.create-group-form .form-group input {
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background-color: var(--background-tertiary);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  transition: all var(--transition-speed);
+}
+
+.create-group-form .form-group input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3); /* ✨ glow */
+}
+
+/* Buttons */
+.create-group-form .btn {
+  padding: 10px 16px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border-radius: var(--border-radius);
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-speed);
+  margin-right: 1rem;
+}
+
+.create-group-form button[type="submit"] {
+  background-color: var(--accent-color);
+  color: white;
+}
+
+.create-group-form button[type="submit"]:hover {
+  background-color: var(--accent-hover);
+  transform: translateY(-2px);
+}
+
+.create-group-form button[type="button"] {
+  background-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.create-group-form button[type="button"]:hover {
+  background-color: #3f3f46;
+  transform: translateY(-2px);
+}
+
+
+/* ============================================= */
+/* Chat UI For Group Messaging       */
+/* ============================================= */
+
+.view-group-form {
+  padding: 20px;
+  margin: 20px;
+  background-color: var(--background-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  height: 500px;
+  max-width: 97%;
+  position:relative;
+}
+
+.view-group-form h2 {
+  color: var(--accent-color);
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.5rem;
+}
+
+/* Chat box */
+.chat-box {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  background-color: var(--background-tertiary);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  margin-bottom: 1rem;
+}
+
+/* Messages */
+.chat-message {
+  max-width: 40%;
+  padding: 3px 13px;
+  margin-bottom: 10px;
+  border-radius: var(--border-radius);
+  font-size: 0.95rem;
+  line-height: 1.4;
+  word-wrap: break-word;
+}
+
+/* Manager messages (right aligned) */
+.manager-msg {
+  background-color: var(--accent-color);
+  color: white;
+  margin-left: auto;
+  border-bottom-right-radius: 2px;
+  text-align: right;
+}
+
+/* User messages (left aligned) */
+.user-msg {
+  background-color: var(--border-color);
+  color: var(--text-primary);
+  margin-right: auto;
+  border-bottom-left-radius: 2px;
+  text-align: left;
+}
+
+/* Chat input */
+.chat-input {
+  display: flex;
+  gap: 10px;
+}
+
+.chat-input input {
+  margin-top: 8px;
+  flex: 1;
+  width: 60%;
+  height: 39px;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  background-color: var(--background-tertiary);
+  color: var(--text-primary);
+  transition: all var(--transition-speed);
+  text-align: left;
+}
+
+.chat-input input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3);
+}
+
+.chat-input .btn {
+  margin-bottom: 1px;
+  height: 39px;
+  width: 12%;
+  background-color: var(--accent-color);
+  color: white;
+}
+
+.chat-input .btn:hover {
+  background-color: var(--accent-hover);
+  transform: translateY(-2px);
 }
