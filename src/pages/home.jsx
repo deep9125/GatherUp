@@ -39,6 +39,14 @@ export default function Home() {
     setView("editForm");
   };
 
+  const handleDeleteEvent = (eventId) => {
+    console.log("Deleting event with ID:", eventId);
+    const updatedEvents = events.filter(event => event.id !== eventId);
+    setEvents(updatedEvents);
+    console.log("Updated events after deletion:", updatedEvents);
+    setSelectedEvent(updatedEvents.length > 0 ? updatedEvents[0] : null);
+  }
+
   const handleUpdateEvent = (updatedEventData) => {
     const updatedEvents = events.map(event => 
       event.id === updatedEventData.id ? updatedEventData : event
@@ -76,7 +84,7 @@ export default function Home() {
           return <EditEventForm event={selectedEvent} onUpdateEvent={handleUpdateEvent} onClose={() => setView("eventDetail")} />;
         case "eventDetail":
         default:
-          return <EventDetail event={selectedEvent} userRole={mockUser.role} handleEdit={handleShowEditForm}/>;
+          return <EventDetail event={selectedEvent} userRole={mockUser.role} handleEdit={handleShowEditForm} handleDelete={handleDeleteEvent} />;
       }
     } else { // User Role
       switch (view) {
