@@ -2,7 +2,7 @@ const initialEvents = [
   { 
     id: 1, 
     name: "Annual Tech Conference", 
-    date: "2025-09-12", 
+    date: '2025-09-08T12:00:00Z', 
     description: "A gathering of innovators, developers, and tech leaders to discuss the future of technology.",
     managerId: "mgr123", 
     capacity: 500,
