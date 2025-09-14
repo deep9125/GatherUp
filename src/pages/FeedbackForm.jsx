@@ -1,4 +1,4 @@
-// src/component/FeedbackForm.jsx
+// src/pages/FeedbackForm.jsx
 import React, { useState } from 'react';
 import '../styles/Home.css';
 

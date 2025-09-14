@@ -1,33 +1,44 @@
 import React, { useMemo } from 'react';
-import '../styles/Home.css';
+import { useNavigate } from 'react-router-dom';
+// Corrected path to use singular 'context' folder as per your project structure
+import { useAppContext } from '../context/AppContext'; 
+import '../styles/Home.css'; // This path should be correct if Home.css is in src/styles
 
-export default function UserDashboard({ user, myEvents, setView, onViewDetails }) {
+export default function UserDashboard() {
+  // Get state and navigation hook instead of using props
+  const { user, joinedEvents } = useAppContext();
+  const navigate = useNavigate();
 
+  // --- Logic for calculating stats (uses 'joinedEvents' from context) ---
   const nextUpcomingEvent = useMemo(() => {
-    if (!myEvents || myEvents.length === 0) return null;
-    const futureEvents = myEvents
+    if (!joinedEvents || joinedEvents.length === 0) return null;
+    const futureEvents = joinedEvents
       .filter(event => new Date(event.date) > new Date())
       .sort((a, b) => new Date(a.date) - new Date(b.date));
     return futureEvents.length > 0 ? futureEvents[0] : null;
-  }, [myEvents]);
+  }, [joinedEvents]);
 
   const eventsThisMonth = useMemo(() => {
     const currentMonth = new Date().getMonth();
-    return myEvents.filter(event => new Date(event.date).getMonth() === currentMonth).length;
-  }, [myEvents]);
+    return joinedEvents.filter(event => new Date(event.date).getMonth() === currentMonth).length;
+  }, [joinedEvents]);
+  // ----------------------------------------------------------------
 
-  if (myEvents.length === 0) {
+  // Empty state if user has joined no events
+  if (joinedEvents.length === 0) {
     return (
       <div className="dashboard-container dashboard-empty">
         <h2>Welcome to your Dashboard, {user.displayName}!</h2>
         <p>You haven't joined any events yet. Let's find something fun!</p>
-        <button className="btn primary" onClick={() => setView('allEvents')}>
+        {/* Use navigate to change pages */}
+        <button className="btn primary" onClick={() => navigate('/')}>
           Browse All Events
         </button>
       </div>
     );
   }
 
+  // Main dashboard view
   return (
     <div className="dashboard-container">
       <h2>My Dashboard</h2>
@@ -35,13 +46,14 @@ export default function UserDashboard({ user, myEvents, setView, onViewDetails }
       
       <div className="dashboard-stats">
         <div className="stat-card">
-          <h3>🗓️ {myEvents.length}</h3>
+          <h3>🗓️ {joinedEvents.length}</h3>
           <p>Events Joined</p>
         </div>
         
         <button 
           className="stat-card interactive" 
-          onClick={() => nextUpcomingEvent ? onViewDetails(nextUpcomingEvent) : null}
+          // Use navigate to go to the event detail page
+          onClick={() => nextUpcomingEvent ? navigate(`/events/${nextUpcomingEvent.id}`) : null}
           disabled={!nextUpcomingEvent}
         >
           <h3>🎉 {nextUpcomingEvent ? nextUpcomingEvent.name : 'None!'}</h3>
@@ -58,10 +70,12 @@ export default function UserDashboard({ user, myEvents, setView, onViewDetails }
       </div>
       
       <div className="dashboard-actions">
-        <button className="btn" onClick={() => setView('myEvents')}>
+        {/* Use navigate to go to the "My Events" page */}
+        <button className="btn" onClick={() => navigate('/my-events')}>
           View All My Joined Events
         </button>
       </div>
     </div>
   );
 }
+

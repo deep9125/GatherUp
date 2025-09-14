@@ -1,9 +1,15 @@
-// src/component/AddEventForm.jsx
 import React, { useState } from "react";
-import "../styles/Home.css";
+import { useNavigate } from 'react-router-dom';
+// Corrected path to use plural 'contexts' folder
+import { useAppContext } from '../context/AppContext'; 
+// Corrected path to use plural 'styles' folder
+import '../styles/Home.css'; 
 
-export default function AddEventForm({ onAddEvent, onClose }) {
-  // Use a single state object for all form data, making it cleaner
+export default function AddEventForm() {
+  // --- State and Hooks ---
+  const { user, dispatch } = useAppContext();
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     name: "",
     date: "",
@@ -11,12 +17,13 @@ export default function AddEventForm({ onAddEvent, onClose }) {
     description: "",
     capacity: "",
     ticketPrice: "",
-    image: null,
   });
   
-  const [imagePreview, setImagePreview] = useState(null); // State for the image preview URL
-  const [error, setError] = useState(""); // State for handling form errors
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [error, setError] = useState("");
 
+  // --- Handlers ---
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -28,29 +35,37 @@ export default function AddEventForm({ onAddEvent, onClose }) {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setFormData((prevData) => ({ ...prevData, image: file }));
-      // Create a URL for the selected file to use as a preview
+      setImageFile(file);
       setImagePreview(URL.createObjectURL(file));
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Check all required fields, including the new ones
-    if (!formData.name || !formData.date || !formData.location || !formData.image) {
+    if (!formData.name || !formData.date || !formData.location || !imageFile) {
       setError("Please fill in all required fields (Name, Date, Location, Image).");
       return;
     }
-    setError(""); // Clear error on successful submission
-    onAddEvent(formData);
-    onClose();
+    setError("");
+
+    const newEvent = {
+      ...formData,
+      id: `evt_${Date.now()}`,
+      managerId: user.uid,
+      image: imagePreview,
+      attendees: 0,
+      capacity: parseInt(formData.capacity, 10) || 0,
+      ticketPrice: parseFloat(formData.ticketPrice) || 0,
+    };
+
+    dispatch({ type: 'ADD_EVENT', payload: newEvent });
+    navigate(`/events/${newEvent.id}`);
   };
 
   return (
     <div className="add-event-form-container">
       <h2>Create New Event</h2>
       <form onSubmit={handleSubmit} noValidate>
-        {/* Display error message if it exists */}
         {error && <p className="form-error">{error}</p>}
         
         <div className="form-group">
@@ -68,7 +83,6 @@ export default function AddEventForm({ onAddEvent, onClose }) {
           <input type="text" id="location" name="location" value={formData.location} onChange={handleChange} required />
         </div>
 
-        {/* Grouping for numeric inputs */}
         <div className="form-row">
             <div className="form-group">
                 <label htmlFor="capacity">Capacity</label>
@@ -76,7 +90,7 @@ export default function AddEventForm({ onAddEvent, onClose }) {
             </div>
             <div className="form-group">
                 <label htmlFor="ticketPrice">Ticket Price ($)</label>
-                <input type="number" id="ticketPrice" name="ticketPrice" value={formData.ticketPrice} onChange={handleChange} min="0" />
+                <input type="number" id="ticketPrice" name="ticketPrice" value={formData.ticketPrice} onChange={handleChange} min="0" step="0.01" />
             </div>
         </div>
 
@@ -85,7 +99,6 @@ export default function AddEventForm({ onAddEvent, onClose }) {
           <input type="file" id="eventImage" name="image" accept="image/*" onChange={handleImageChange} required />
         </div>
         
-        {/* --- Image Preview --- */}
         {imagePreview && (
           <div className="form-group image-preview-container">
             <p>Image Preview:</p>
@@ -99,10 +112,11 @@ export default function AddEventForm({ onAddEvent, onClose }) {
         </div>
 
         <div className="form-actions">
-          <button type="button" className="btn cancel-btn" onClick={onClose}>Cancel</button>
+          <button type="button" className="btn cancel-btn" onClick={() => navigate(-1)}>Cancel</button>
           <button type="submit" className="btn submit-btn">Add Event</button>
         </div>
       </form>
     </div>
   );
 }
+
