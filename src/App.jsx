@@ -14,15 +14,24 @@ import ProfilePage from './pages/ProfilePage';
 import CreateGroupPage from './pages/CreateGroupForm';
 import ViewGroupPage from './component/ViewGroup';
 import EventAnalyticsPage from './pages/EventAnalytics';
-
+import SignupPage from './pages/SignupPage';
 // Components that are being used as pages (still in the component folder)
 import EventDetailPage from './pages/EventDetail';
 import EditEventPage from './pages/EditEventForm';
 import AddEventPage from './pages/AddEventForm';
 import TicketPage from './pages/TicketPage';
-
+import AttendancePage from './pages/AttendancePage';
 import useRedirector from './hook/useRedirector';
 // --- The App's Main Content, Shown Only After Login ---
+const AuthRoutes = () => (
+  <Routes>
+    <Route path="/login" element={<LoginPage />} />
+    <Route path="/signup" element={<SignupPage />} />
+    {/* Any other route redirects to login if not logged in */}
+    <Route path="*" element={<Navigate to="/login" replace />} />
+  </Routes>
+);
+
 const AppContent = () => (
   <Routes>
     <Route path="/" element={<HomePage />}>
@@ -37,6 +46,7 @@ const AppContent = () => (
       <Route path="manage/add" element={<ProtectedRoute roles={['Manager']}><AddEventPage /></ProtectedRoute>} />
       <Route path="manage/edit/:id" element={<ProtectedRoute roles={['Manager']}><EditEventPage /></ProtectedRoute>} />
       <Route path="manage/analytics/:id" element={<ProtectedRoute roles={['Manager']}><EventAnalyticsPage /></ProtectedRoute>} />
+      <Route path="manage/attendance/:id" element={<ProtectedRoute roles={['Manager']}><AttendancePage /></ProtectedRoute>} />
     </Route>
   </Routes>
 );
@@ -50,7 +60,8 @@ const RootRedirector = () => {
 // --- A component to protect manager-only routes ---
 const ProtectedRoute = ({ children, roles }) => {
   const { user } = useAppContext();
-  if (!user) return <Navigate to="/" replace />; 
+  // Although AppLayout should prevent this, it's good practice for safety
+  if (!user) return <Navigate to="/login" replace />;
   if (!roles.includes(user.role)) return <Navigate to="/" replace />;
   return children;
 };
@@ -61,7 +72,7 @@ const AppLayout = () => {
   return (
     <Router>
       <Toaster position="top-center" />
-      {user ? <AppContent /> : <LoginPage />}
+      {user ? <AppContent /> : <AuthRoutes/>}
     </Router>
   );
 };

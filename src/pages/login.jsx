@@ -1,34 +1,28 @@
 import React, { useState } from 'react';
+import { Link , useNavigate } from 'react-router-dom'; // Import Link
 import { useAppContext } from '../context/AppContext';
-import { mockUsers } from '../service/mockUsers'; // Assuming you have this file
 import { toast } from 'react-hot-toast';
-import '../styles/Home.css'; // Assuming you have login styles here
+import '../styles/Home.css';
 
 export default function LoginPage() {
-  const { dispatch } = useAppContext();
+  const { dispatch, users } = useAppContext();
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleLogin = () => {
-    // In a real app, you'd call an API. Here, we'll find the mock user.
-    const foundUser = mockUsers.find(
-      (user) => user.email === email
-      // We are not checking password for this mock login
+    // Now we check for both email and password
+    const foundUser = users.find(
+      (user) => user.email === email && user.password === password
     );
 
     if (foundUser) {
       dispatch({ type: 'LOGIN_SUCCESS', payload: foundUser });
-      toast.success(`Welcome, ${foundUser.displayName}!`);
+      toast.success(`Welcome back, ${foundUser.displayName}!`);
+      navigate('/');
     } else {
       toast.error('Invalid email or password.');
     }
-  };
-
-  const handleGoogleSignIn = () => {
-    // For this mock app, we'll just log in the first user from the list
-    const googleUser = mockUsers[0];
-    dispatch({ type: 'LOGIN_SUCCESS', payload: googleUser });
-    toast.success(`Welcome, ${googleUser.displayName}!`);
   };
 
   return (
@@ -37,7 +31,7 @@ export default function LoginPage() {
         <h2 className="login-title">🗓️ Gather Up</h2>
         <input 
           type="email" 
-          placeholder="Email (e.g., test@gatherup.com)" 
+          placeholder="Email" 
           className="input-field"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -52,10 +46,13 @@ export default function LoginPage() {
         <button className="btn primary" onClick={handleLogin}>
           Login
         </button>
-        <div className="divider">OR</div>
-        <button className="btn google" onClick={handleGoogleSignIn}>
-          Sign in with Google
-        </button>
+        <div className="divider"></div>
+        <p className="toggle-text">
+          Don't have an account?{' '}
+          <Link to="/signup" className="toggle-link">
+            Sign Up
+          </Link>
+        </p>
       </div>
     </div>
   );

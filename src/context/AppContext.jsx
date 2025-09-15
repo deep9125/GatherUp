@@ -50,6 +50,12 @@ const appReducer = (state, action) => {
       return { ...state, groups: [...state.groups, action.payload] };
     case 'LOGIN_SUCCESS':
       return { ...state, user: action.payload };
+    case 'SIGNUP_SUCCESS':
+      return {
+        ...state,
+        user: action.payload, // Automatically log the new user in
+        users: [...state.users, action.payload], // Add the new user to the list of all users
+      };
     default:
       return state;
   }
