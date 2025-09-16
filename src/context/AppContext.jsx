@@ -1,6 +1,5 @@
 import React, { createContext, useReducer, useContext } from 'react';
 import initialEvents from '../service/mockEvents'; // Corrected path
-import { mockUser } from '../service/authService';  // Corrected path
 import { mockUsers } from '../service/mockUsers';
 // 1. Initial State
 const initialState = {
