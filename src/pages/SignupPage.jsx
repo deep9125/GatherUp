@@ -12,7 +12,7 @@ export default function SignupPage() {
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('User'); // State for the selected role, defaults to 'User'
 
-  const handleSignup = () => {
+  const handleSignup = async () => {
     if (!displayName || !email || !password) {
       toast.error('Please fill in all fields.');
       return;
@@ -25,13 +25,32 @@ export default function SignupPage() {
     }
 
     const newUser = {
-      uid: `user_${Date.now()}`,
+      id: 0,
       displayName,
       email,
       password,
-      role, // Add the selected role to the new user object
+      role, 
     };
+    console.log(JSON.stringify(newUser));
+    try {
+      const res = await fetch('http://localhost:3000/api/users/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newUser),
+      });
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
 
+      const data = await res.json();
+      // setResponse(data);
+      // setError(null);
+    } catch (err) {
+      // setError(err.message);
+      // setResponse(null);
+    }
     dispatch({ type: 'SIGNUP_SUCCESS', payload: newUser });
     toast.success(`Welcome, ${newUser.displayName}! Account created as a ${newUser.role}.`);
     navigate('/');

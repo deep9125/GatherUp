@@ -19,14 +19,13 @@ const userSchema = new mongoose.Schema({
   role: {
     type: String,
     required: true,
-    enum: ['User', 'Manager'], // Restrict roles to these two values
+    enum: ['User', 'Manager'], 
     default: 'User',
   },
 }, {
-  timestamps: true, // Adds createdAt and updatedAt
+  timestamps: true, 
 });
 
-// Middleware to hash password before saving
 userSchema.pre('save', async function (next) {
   // Only hash the password if it has been modified (or is new)
   if (!this.isModified('password')) {

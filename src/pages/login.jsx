@@ -10,12 +10,30 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
+  const handleLogin =async () => {
     // Now we check for both email and password
     const foundUser = users.find(
       (user) => user.email === email && user.password === password
     );
+    try {
+      const res = await fetch('http://localhost:3000/api/users/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newUser),
+      });
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
 
+      const data = await res.json();
+      // setResponse(data);
+      // setError(null);
+    } catch (err) {
+      // setError(err.message);
+      // setResponse(null);
+    }
     if (foundUser) {
       dispatch({ type: 'LOGIN_SUCCESS', payload: foundUser });
       toast.success(`Welcome back, ${foundUser.displayName}!`);
