@@ -1,7 +1,12 @@
 import express from 'express';
 import Event from '../models/eventModel.js';
 
-const route=express.Router();
+const route = express.Router();
+
+// This is a simple test route to verify that the event routes are working😁
+route.get('/', (req, res) => {
+  res.send('Event route is working...');
+});
 
 route.get('/viewAllEvent', async (req, res) => {
   try {
