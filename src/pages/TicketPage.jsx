@@ -1,31 +1,50 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
-import '../styles/Home.css';
+import axios from 'axios';
+import '../styles/Home.css'; 
+
+const API_URL = 'http://localhost:3000/api';
 
 export default function TicketPage() {
-  // --- Hooks for routing and state ---
-  const { id } = useParams(); // Get event ID from the URL
+  const { id: eventId } = useParams(); 
   const navigate = useNavigate();
-  const { user, events } = useAppContext();
+  const { user } = useAppContext();
 
-  // Find the event from the global state using the ID from the URL
-  const event = React.useMemo(() => events.find(e => e.id == id), [events, id]);
-
-  // --- Render Logic ---
-  // Handle case where the event ID from the URL is not found
-  if (!event) {
+  const [event, setEvent] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  useEffect(() => {
+    const fetchEvent = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`${API_URL}/events/${eventId}`);
+        setEvent(response.data);
+      } catch (err) {
+        setError('Could not find the event for this ticket.');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (eventId) {
+      fetchEvent();
+    }
+  }, [eventId]); 
+  if (loading) return <div className="ticket-page-container"><div>Loading Ticket...</div></div>;
+  if (error || !event) {
     return (
       <div className="ticket-page-container">
         <div className="ticket-card">
-            <h2>Event Not Found</h2>
-            <p>The event for this ticket could not be found.</p>
-            <button className="btn" onClick={() => navigate('/my-events')}>View My Events</button>
+          <h2>Event Not Found</h2>
+          <p>{error}</p>
+          <button className="btn" onClick={() => navigate('/events')}>View All Events</button>
         </div>
       </div>
     );
   }
-
+  
+  const userId = user?.user?.id || user?._id;
   const eventDate = new Date(event.date).toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
@@ -45,15 +64,13 @@ export default function TicketPage() {
         </div>
 
         <div className="ticket-qr-code">
-            <img 
-                // The QR code now uses the actual user's ID from the context
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=GatherUp-Ticket-EventID:${event.id}-UserID:${user.uid}`}
-                alt="Your Event Ticket QR Code" 
-            />
+          <img 
+            src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=GatherUp-Ticket-EventID:${event._id}-UserID:${userId}`}
+            alt="Your Event Ticket QR Code" 
+          />
         </div>
         
-        {/* The button now uses the navigate hook */}
-        <button className="btn primary full-width" onClick={() => navigate('/my-events')}>
+        <button className="btn primary full-width" onClick={() => navigate('/events')}>
           Done
         </button>
       </div>

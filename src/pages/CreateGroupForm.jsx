@@ -2,32 +2,40 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import { toast } from 'react-hot-toast';
-
+import axios from 'axios';
+const API_URL = 'http://localhost:3000/api';
 export default function CreateGroupPage() {
   const { id: eventId } = useParams();
   const navigate = useNavigate();
-  const { user, dispatch } = useAppContext();
+  const { user } = useAppContext();
   const [groupName, setGroupName] = useState('');
-
-  const handleSubmit = (e) => {
+  const [loading, setLoading] = useState(false);
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!groupName.trim()) {
       toast.error('Please enter a group name.');
       return;
     }
-
-    const newGroup = {
-      id: `grp_${Date.now()}`,
-      eventId: eventId,
+    setLoading(true);
+    const createdBy = user?.user?.id || user?._id;
+    const newGroupData = {
       name: groupName.trim(),
-      managerId: user.uid,
-      messages: [], // <-- ADD THIS LINE
-      members: [user.uid], // The creator is the first member
+      eventId: eventId,
+      createdBy: createdBy,
     };
 
-    dispatch({ type: 'CREATE_GROUP', payload: newGroup });
-    toast.success(`Group "${newGroup.name}" created!`);
-    navigate(`/groups/${newGroup.id}`); // Navigate to the new group's page
+    try {
+      const response = await axios.post(`${API_URL}/groups`, newGroupData);
+      const newGroup = response.data;
+      
+      toast.success(`Group "${newGroup.name}" created!`);
+      navigate(`/groups/${newGroup._id}`); 
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to create group.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -48,7 +56,9 @@ export default function CreateGroupPage() {
         </div>
         <div className="form-actions">
           <button type="button" className="btn cancel-btn" onClick={() => navigate(-1)}>Cancel</button>
-          <button type="submit" className="btn submit-btn">Create Group</button>
+          <button type="submit" className="btn submit-btn" disabled={loading}>
+            {loading ? 'Creating...' : 'Create Group'}
+          </button>
         </div>
       </form>
     </div>

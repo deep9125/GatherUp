@@ -814,3 +814,16 @@
   border-radius: 0 4px 4px 0;
   transition: all var(--transition-speed);
 }
+
+/*feedback form star styles*/
+.star-rating-display .star,
+.star-rating-input .star {
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #ccc; /* Unselected star color */
+}
+
+.star-rating-display .star.selected,
+.star-rating-input .star.selected {
+  color: #ffc107; /* Selected star color (gold) */
+}

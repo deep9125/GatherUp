@@ -1,39 +1,59 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-// Corrected path to navigate up from 'pages' to 'src', then into 'context'
 import { useAppContext } from '../context/AppContext';
-// Corrected path to navigate up from 'pages' to 'src', then into 'styles'
+import axios from 'axios';
 import '../styles/Home.css';
-
-// This is a basic analytics component. You could add charts or more detailed stats.
+const API_URL = 'http://localhost:3000/api';
 export default function EventAnalyticsPage() {
-  const { id } = useParams();
+  const { id: eventId } = useParams();
   const navigate = useNavigate();
-  const { events } = useAppContext();
+  const [event, setEvent] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const event = React.useMemo(() => events.find(e => e.id == id), [events, id]);
+useEffect(() => {
+    const fetchEvent = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`${API_URL}/events/${eventId}`);
+        setEvent(response.data);
+      } catch (err) {
+        setError("Could not load analytics for this event.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEvent();
+  }, [eventId]);
 
-  if (!event) {
+  if (loading) return <div>Loading analytics...</div>;
+  if (error || !event) {
     return (
-      <div className="event-detail-container">
+      <div className="dashboard-container">
         <h2>Event Not Found</h2>
-        <p>Analytics cannot be displayed for an event that does not exist.</p>
+        <p>{error}</p>
         <button className="btn" onClick={() => navigate('/dashboard')}>Go to Dashboard</button>
       </div>
     );
   }
 
-  const revenue = (event.attendees || 0) * (event.ticketPrice || 0);
-  const attendanceRate = event.capacity > 0 ? ((event.attendees || 0) / event.capacity) * 100 : 0;
-
+  const ticketsSold = event.attendees?.length || 0;
+  const revenue = ticketsSold * (event.ticketPrice || 0);
+  const actualAttendance = event.presentAttendees?.length || 0;
+  const attendanceRate = ticketsSold > 0 ? (actualAttendance / ticketsSold) * 100 : 0;
   return (
     <div className="dashboard-container">
       <h2>Analytics for: {event.name}</h2>
       
       <div className="dashboard-stats">
         <div className="stat-card">
-          <h3>👥 {event.attendees || 0} / {event.capacity}</h3>
+          <h3>👥 {ticketsSold} / {event.capacity}</h3>
           <p>Tickets Sold</p>
+        </div>
+        <div className="stat-card">
+          <h3>✅ {actualAttendance} / {ticketsSold}</h3>
+          <p>Checked In</p>
         </div>
         <div className="stat-card">
           <h3>📈 {attendanceRate.toFixed(1)}%</h3>
@@ -44,9 +64,6 @@ export default function EventAnalyticsPage() {
           <p>Total Revenue</p>
         </div>
       </div>
-
-      {/* You could add charts or more detailed data visualizations here */}
-
       <div className="dashboard-actions">
         <button className="btn" onClick={() => navigate(-1)}>
           Back

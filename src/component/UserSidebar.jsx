@@ -11,10 +11,6 @@ export default function UserSidebar() {
                 <h2>Welcome, {user.displayName}!</h2>
             </div>
             <ul className="navigation-menu">
-                {/* Using NavLink is the best practice for navigation. 
-                  It automatically adds an 'active' class to the link 
-                  that corresponds to the current page.
-                */}
                 <li>
                     <NavLink to="/" end>Browse All Events</NavLink>
                 </li>

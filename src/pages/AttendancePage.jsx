@@ -1,88 +1,105 @@
-import React, { useState, useMemo } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { useAppContext } from '../context/AppContext';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
+import axios from 'axios';
 
-
+const API_URL = 'http://localhost:3000/api';
 export default function AttendancePage() {
-  const { eventId } = useParams();
-  const { events, users } = useAppContext();
+  const { id:eventId } = useParams();
+  const navigate = useNavigate();
   
-  // State to keep track of which user IDs are selected
-  const [selectedUserIds, setSelectedUserIds] = useState([]);
-    console.log("ID from URL (eventId):", eventId, typeof eventId); 
-  console.log("All events from context:", events);
-  // Find the current event based on the ID from the URL
-  const event = useMemo(() => 
-    events.find(e => e.id == Number(eventId)), 
-    [events, eventId]
-  );
+  const [event, setEvent] = useState(null);
+  const [attendance, setAttendance] = useState({});
+  const [isEventToday, setIsEventToday] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // In a real app, this would be a list of users registered for THIS event.
-  // For this mock-up, we'll just list all users.
-  const attendees = users;
+  useEffect(() => {
+    const fetchEvent = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`${API_URL}/events/${eventId}`);
+        setEvent(response.data);
+        const today = new Date().toISOString().split('T')[0];
+        const eventDate = new Date(response.data.date).toISOString().split('T')[0];
+        if (today === eventDate) {
+          setIsEventToday(true);
+        }
+        const initialAttendance = {};
+        response.data.attendees.forEach(attendee => {
+          initialAttendance[attendee._id] = response.data.presentAttendees.includes(attendee._id) ? 'present' : 'unknown';
+        });
+        setAttendance(initialAttendance);
+      } catch (err) {
+        setError("Could not load event data.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEvent();
+  }, [eventId]);
 
-  // Handler for checkbox changes
-  const handleCheckboxChange = (userId) => {
-    setSelectedUserIds(prevSelected =>
-      prevSelected.includes(userId)
-        ? prevSelected.filter(id => id !== userId) // Uncheck: remove ID
-        : [...prevSelected, userId] // Check: add ID
-    );
+  const handleStatusChange = (userId, status) => {
+    setAttendance(prev => ({ ...prev, [userId]: status }));
   };
 
-  // Handler for marking attendance (simulated)
-  const handleMarkAttendance = (status) => {
-    if (selectedUserIds.length === 0) {
-      toast.error('Please select at least one user.');
-      return;
+  const handleSaveChanges = async () => {
+    const presentUserIds = Object.keys(attendance).filter(id => attendance[id] === 'present');
+    const absentUserIds = Object.keys(attendance).filter(id => attendance[id] === 'absent');
+    
+    try {
+      await axios.post(`${API_URL}/events/${eventId}/attendance`, { presentUserIds, absentUserIds });
+      toast.success("Attendance saved!");
+      navigate(`/manage/analytics/${eventId}`);
+    } catch (err) {
+      toast.error("Failed to save attendance.");
     }
-    // In a real app, you would dispatch an action here to update attendance state.
-    toast.success(`${selectedUserIds.length} user(s) marked as ${status}.`);
-    setSelectedUserIds([]); // Clear selection after action
   };
 
-  if (!event) {
+  if (loading) return <div>Loading attendance sheet...</div>;
+  if (error) return <div className="error-message">{error}</div>;
+  if (!event) return <h2>Event Not Found</h2>;
+
+    if (!isEventToday) {
     return (
       <div className="attendance-container">
-        <h2>Event not found</h2>
-        <Link to="/dashboard">Return to Dashboard</Link>
+        <div className="attendance-header">
+          <h1>Manage Attendance</h1>
+          <h2>{event.name}</h2>
+        </div>
+        <div className="empty-state">
+          <p>You can only manage attendance on the day of the event.</p>
+          <p>Please come back on {new Date(event.date).toLocaleDateString()}.</p>
+          <button className="btn" onClick={() => navigate('/dashboard')}>Back to Dashboard</button>
+        </div>
       </div>
     );
   }
-
   return (
     <div className="attendance-container">
       <div className="attendance-header">
         <h1>Manage Attendance</h1>
         <h2>{event.name}</h2>
-        <p>{new Date(event.date).toLocaleDateString()}</p>
-      </div>
-
-      <div className="attendance-controls">
-        <button className="btn" onClick={() => handleMarkAttendance('Present')}>
-          Mark as Present
-        </button>
-        <button className="btn secondary" onClick={() => handleMarkAttendance('Absent')}>
-          Mark as Absent
-        </button>
       </div>
 
       <div className="user-list">
-        {attendees.map(user => (
-          <div key={user.uid} className="user-row">
-            <input
-              type="checkbox"
-              id={`user-${user.uid}`}
-              checked={selectedUserIds.includes(user.uid)}
-              onChange={() => handleCheckboxChange(user.uid)}
-            />
-            <label htmlFor={`user-${user.uid}`}>
-              <span className="user-name">{user.displayName}</span>
-              <span className="user-email">{user.email}</span>
-            </label>
+        {event.attendees.map(attendee => (
+          <div key={attendee._id} className="user-row">
+            <span className="user-name">{attendee.displayName}</span>
+            <div className="attendance-radios">
+              <label>
+                <input type="radio" name={`status-${attendee._id}`} checked={attendance[attendee._id] === 'present'} onChange={() => handleStatusChange(attendee._id, 'present')} /> Present
+              </label>
+              <label>
+                <input type="radio" name={`status-${attendee._id}`} checked={attendance[attendee._id] === 'absent'} onChange={() => handleStatusChange(attendee._id, 'absent')} /> Absent
+              </label>
+            </div>
           </div>
         ))}
+      </div>
+      
+      <div className="form-actions">
+        <button className="btn primary" onClick={handleSaveChanges}>Save Changes</button>
       </div>
     </div>
   );

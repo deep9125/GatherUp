@@ -1,51 +1,37 @@
-import React from 'react';
+import React,{useState,useEffect} from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAppContext } from '../context/AppContext'; // Correct path
-import '../styles/Home.css'; // Correct path
+import { toast } from 'react-hot-toast'; 
+import axios from 'axios';
+import '../styles/Home.css'; 
 
+const API_URL = 'http://localhost:3000';
 export default function EditEventForm() {
-  // --- Hooks for routing and state management ---
-  const { id } = useParams(); // Get event ID from the URL
+  const { id: eventId } = useParams(); 
   const navigate = useNavigate();
-  const { events, dispatch } = useAppContext();
+  const [formData, setFormData] = useState(null); 
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  // Find the specific event to edit from the global state
-  // useMemo prevents recalculating this on every render
-  const eventToEdit = React.useMemo(() => events.find(e => e.id === id), [events, id]);
-
-  // --- Component State ---
-  const [formData, setFormData] = React.useState({
-    name: '',
-    date: '',
-    location: '',
-    description: '',
-    capacity: 0,
-    ticketPrice: 0,
-  });
-  
-  const [imageFile, setImageFile] = React.useState(null);
-  const [imagePreview, setImagePreview] = React.useState(null);
-  const [error, setError] = React.useState('');
-
-  // --- Effect to pre-fill the form when the event data is available ---
-  React.useEffect(() => {
-    if (eventToEdit) {
-      // Format date for the input field (YYYY-MM-DD)
-      const eventDate = new Date(eventToEdit.date).toISOString().split('T')[0];
-      setFormData({
-        name: eventToEdit.name || '',
-        date: eventDate || '',
-        location: eventToEdit.location || '',
-        description: eventToEdit.description || '',
-        capacity: eventToEdit.capacity || 0,
-        ticketPrice: eventToEdit.ticketPrice || 0,
-      });
-      // Set the initial image preview from the existing event
-      setImagePreview(eventToEdit.image);
-    }
-  }, [eventToEdit]);
-
-  // --- Handlers ---
+  useEffect(() => {
+    const fetchEvent = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`${API_URL}/api/events/${eventId}`);
+        const eventToEdit = response.data;
+        const eventDate = new Date(eventToEdit.date).toISOString().split('T')[0];
+        setFormData({ ...eventToEdit, date: eventDate });
+        setImagePreview(`${API_URL}/${eventToEdit.imageUrl}`); 
+      } catch (err) {
+        setError('Failed to load event data.');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEvent();
+  }, [eventId]);
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -58,50 +44,40 @@ export default function EditEventForm() {
     const file = e.target.files[0];
     if (file) {
       setImageFile(file);
-      // Create a URL for the newly selected file to use as a preview
       setImagePreview(URL.createObjectURL(file));
     }
   };
 
-  const handleSubmit = (e) => {
+ const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name || !formData.date || !formData.location) {
-      setError('Please fill in all required fields (Name, Date, Location).');
+      toast.error('Please fill in all required fields.');
       return;
     }
-    setError('');
-
-    // Construct the updated event object, keeping existing data
-    const updatedEvent = {
-      ...eventToEdit, // Start with original event data
-      ...formData,    // Overwrite with form data
-      image: imagePreview, // Use the new (or old) image preview URL
-      capacity: parseInt(formData.capacity, 10) || 0,
-      ticketPrice: parseFloat(formData.ticketPrice) || 0,
-    };
-
-    // Dispatch the update action to the global state
-    dispatch({ type: 'UPDATE_EVENT', payload: updatedEvent });
-
-    // Navigate to the event's detail page after saving
-    navigate(`/events/${id}`);
+    setLoading(true);
+    const eventData = new FormData();
+    Object.keys(formData).forEach(key => {
+      eventData.append(key, formData[key]);
+    });
+    if (imageFile) {
+      eventData.append('eventImage', imageFile);
+    }
+    try {
+      const response = await axios.put(`${API_URL}/api/events/${eventId}`, eventData);
+      toast.success('Event updated successfully!');
+      navigate(`/events/${response.data._id}`);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to update event.");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
-
-  // --- Render Logic ---
-  // Handle case where the event ID from the URL is not found
-  if (!eventToEdit) {
-    return (
-        <div className="add-event-form-container">
-            <h2>Event Not Found</h2>
-            <p>The event you are trying to edit does not exist.</p>
-            <button className="btn" onClick={() => navigate('/dashboard')}>Go to Dashboard</button>
-        </div>
-    );
-  }
-
+  if (loading) return <div>Loading form...</div>;
+  if (error || !formData) return <div className="error-message">{error || "Event not found."}</div>;
   return (
     <div className="add-event-form-container">
-      <h2>Edit Event: {eventToEdit.name}</h2>
+      <h2>Edit Event: {formData.name}</h2>
       <form onSubmit={handleSubmit} noValidate>
         {error && <p className="form-error">{error}</p>}
 
@@ -149,9 +125,10 @@ export default function EditEventForm() {
         </div>
 
         <div className="form-actions">
-          {/* Use navigate hook for Cancel button */}
           <button type="button" className="btn cancel-btn" onClick={() => navigate(-1)}>Cancel</button>
-          <button type="submit" className="btn submit-btn">Save Changes</button>
+          <button type="submit" className="btn submit-btn" disabled={loading}>
+            {loading ? 'Saving...' : 'Save Changes'}
+          </button>
         </div>
       </form>
     </div>

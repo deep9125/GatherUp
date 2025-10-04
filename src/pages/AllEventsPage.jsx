@@ -1,41 +1,76 @@
-// src/pages/AllEventsPage.js
-import React from 'react';
+import React, { useState, useEffect, useMemo } from 'react'; // 1. Import useMemo
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import EventCard from '../component/EventCard';
 import { toast } from 'react-hot-toast';
+import axios from 'axios';
+
+const API_URL = 'http://localhost:3000/api';
 
 export default function AllEventsPage() {
-  const { events, joinedEvents, dispatch } = useAppContext();
+  const { user } = useAppContext();
   const navigate = useNavigate();
-
-  const availableEvents = events.filter(
-    event => !joinedEvents.some(joinedEvent => joinedEvent.id === event.id)
-  );
-
-  const handleJoinEvent = (eventToJoin) => {
-    if (joinedEvents.find(e => e.id === eventToJoin.id)) {
-      toast.error("You have already joined this event!");
+  const [allEvents, setAllEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  useEffect(() => {
+  const fetchEvents = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API_URL}/events/viewAllEvent`);
+      setAllEvents(response.data);
+    } catch (err) {
+      setError('Failed to fetch events.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchEvents();
+}, []);
+ const availableEvents = useMemo(() => {
+    if (!user || !allEvents) return [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const userId = user.user?.id || user._id;
+    return allEvents.filter(event => {
+      const notJoined = !event.attendees.includes(userId);
+      const isUpcoming = new Date(event.date) >= today;
+      return notJoined && isUpcoming;
+    });
+  }, [allEvents, user]);
+  const handleJoinEvent = async (eventToJoin) => {
+    if (!user) {
+      toast.error("You must be logged in to join an event.");
       return;
     }
-    dispatch({ type: 'JOIN_EVENT', payload: eventToJoin });
-    navigate(`/ticket/${eventToJoin.id}`);
+    try {
+      await axios.post(`${API_URL}/events/${eventToJoin._id}/join`, {
+        userId: user._id,
+      });
+      toast.success(`Successfully joined "${eventToJoin.name}"!`);
+      navigate(`/ticket/${eventToJoin._id}`);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to join event.");
+      console.error(err);
+    }
+  };
+  const handleViewDetails = (event) => {
+    navigate(`/events/${event._id}`);
   };
 
-  const handleViewDetails = (event) => {
-    navigate(`/events/${event.id}`);
-  };
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div className="error-message">{error}</div>;
 
   return (
     <div className="event-grid-container">
-      <h2>All Events ({availableEvents.length})</h2>
+      <h2>Available Events ({availableEvents.length})</h2>
       <div className="event-grid">
         {availableEvents.map(event => (
           <EventCard
-            key={event.id}
+            key={event._id}
             event={event}
-            onJoin={() => handleJoinEvent(event)}
-            onViewDetails={() => handleViewDetails(event)}
+            onJoin={handleJoinEvent}
+            onViewDetails={handleViewDetails}
           />
         ))}
       </div>

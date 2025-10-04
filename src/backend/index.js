@@ -4,6 +4,9 @@ import cors from 'cors';
 import UserRoute from './routes/userRoutes.js';
 import EventRoute from './routes/eventRoutes.js';
 import GroupRoute from './routes/groupRoutes.js';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const PORT = 3000;
 const mongoURI = 'mongodb://127.0.0.1:27017/GatherUp';
@@ -18,6 +21,7 @@ app.use(cors({
   credentials: true
 }));
 app.use(express.json());
+app.use('/uploads', express.static('uploads'));
 app.get('/', (req, res) => {
   res.send('GatherUp API is running...');
 });

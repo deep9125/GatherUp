@@ -6,7 +6,7 @@ const messageSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
-  username: { // Denormalized for easy display
+  username: { 
     type: String,
     required: true,
   },

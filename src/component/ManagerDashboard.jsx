@@ -1,16 +1,33 @@
-import React, { useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext'; 
 import '../styles/Home.css';
-
+import axios from 'axios';
+const API_URL = 'http://localhost:3000/api';
 export default function ManagerDashboard() {
-  const { user, events } = useAppContext();
+  const { user } = useAppContext();
   const navigate = useNavigate();
+  const [myCreatedEvents, setMyCreatedEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  useEffect(() => {
+    const managerId = user?._id;
+    if (!managerId) return;
 
-  const myCreatedEvents = useMemo(() => 
-    events.filter(event => event.managerId === user.uid),
-    [events, user.uid]
-  );
+    const fetchManagerEvents = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`${API_URL}/events/manager/${managerId}`);
+        setMyCreatedEvents(response.data);
+      } catch (err) {
+        setError("Could not fetch dashboard data.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchManagerEvents();
+  }, [user]);
 
   const stats = useMemo(() => {
     const totalEvents = myCreatedEvents.length;
@@ -19,6 +36,8 @@ export default function ManagerDashboard() {
     
     return { totalEvents, totalAttendees, averageAttendance };
   }, [myCreatedEvents]);
+  if (loading) return <div>Loading dashboard...</div>;
+  if (error) return <div className="error-message">{error}</div>;
   if (myCreatedEvents.length === 0) {
     return (
       <div className="dashboard-container dashboard-empty">
@@ -57,30 +76,14 @@ export default function ManagerDashboard() {
             </thead>
             <tbody>
               {myCreatedEvents.map(event => (
-                <tr key={event.id}>
+                <tr key={event._id}>
                   <td>{event.name}</td>
                   <td>{new Date(event.date).toLocaleDateString()}</td>
-                  <td>{event.attendees || 0} / {event.capacity}</td>
+                  <td>{event.attendees?.length || 0} / {event.capacity}</td>
                   <td>
-                    {/* --- NEW BUTTON ADDED HERE --- */}
-                    <button 
-                      className="btn-link" 
-                      onClick={() => navigate(`/manage/attendance/${event.id}`)}
-                    > 
-                      Attendance
-                    </button>
-                    <button 
-                      className="btn-link" 
-                      onClick={() => navigate(`/manage/analytics/${event.id}`)}
-                    > 
-                      Analytics
-                    </button>
-                    <button 
-                      className="btn-link" 
-                      onClick={() => navigate(`/events/${event.id}`)}
-                    >
-                      View Details
-                    </button>
+                    <button className="btn-link" onClick={() => navigate(`/manage/attendance/${event._id}`)}> Attendance</button>
+                    <button className="btn-link" onClick={() => navigate(`/manage/analytics/${event._id}`)}>Analytics</button>
+                    <button className="btn-link" onClick={() => navigate(`/events/${event._id}`)}>View Details</button>
                   </td>
                 </tr>
               ))}

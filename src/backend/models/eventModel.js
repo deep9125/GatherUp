@@ -40,14 +40,24 @@ const eventSchema = new mongoose.Schema({
   },
   managerId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', // Creates a reference to a document in the 'User' collection
+    ref: 'User', 
     required: true,
+  },
+  imageUrl: { type: String, required: true },
+  ticketPrice: {
+    type: Number,
+    required: true,
+    default: 0 
   },
   attendees: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', // An array of references to users attending
+    ref: 'User', 
   }],
-  ratings: [ratingSchema], // An array of embedded rating documents
+  presentAttendees: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
+  ratings: [ratingSchema], 
 }, {
   timestamps: true,
 });
