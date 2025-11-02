@@ -12,7 +12,7 @@ export default function UserDashboard() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const userId = user?.user?.id || user?._id;
+    const userId =  user?._id;
     if (!userId) return;
     const fetchJoinedEvents = async () => {
       try {

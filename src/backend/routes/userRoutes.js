@@ -59,13 +59,11 @@ route.post('/login', async (req, res) => {
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET , { expiresIn: '1h' });
     return res.status(200).json({
       _id: user._id,
       displayName: user.displayName,
       email: user.email,
       role: user.role,
-      token: token,
     });
   } catch (error) {
     console.error("Login error:", error.message);

@@ -44,7 +44,7 @@ export default function TicketPage() {
     );
   }
   
-  const userId = user?.user?.id || user?._id;
+  const userId = user?._id;
   const eventDate = new Date(event.date).toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",

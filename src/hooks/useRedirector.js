@@ -8,7 +8,7 @@ export default function useRedirector() {
   const location = useLocation();
   useEffect(() => {
     if (user && location.pathname === '/') {
-      const role = user.user?.role || user.role;
+      const role =  user?.role;
       if (role === 'Manager') {
         navigate('/dashboard', { replace: true });
       } else {

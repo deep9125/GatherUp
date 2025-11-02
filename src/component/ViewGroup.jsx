@@ -38,8 +38,8 @@ export default function ViewGroupPage() {
   const handleSend = async (e) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
-    const currentUserId = user?.user?.id || user?._id;
-    const currentUsername = user?.user?.displayName || user?.displayName;
+    const currentUserId =  user?._id;
+    const currentUsername = user?.displayName;
     try {
       await axios.post(`${API_URL}/groups/${groupId}/messages`, {
         userId: currentUserId,
