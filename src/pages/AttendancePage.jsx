@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import axios from 'axios';
-
+import {generateTicketCode} from '../utils/codeGenerator.js';
 const API_URL = 'http://localhost:3000/api';
 export default function AttendancePage() {
   const { id:eventId } = useParams();
@@ -10,9 +10,10 @@ export default function AttendancePage() {
   
   const [event, setEvent] = useState(null);
   const [attendance, setAttendance] = useState({});
-  const [isEventToday, setIsEventToday] = useState(false);
+  const [isAttendanceActive, setIsAttendanceActive] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [timeMessage, setTimeMessage] = useState("");
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -20,10 +21,15 @@ export default function AttendancePage() {
         setLoading(true);
         const response = await axios.get(`${API_URL}/events/${eventId}`);
         setEvent(response.data);
-        const today = new Date().toISOString().split('T')[0];
-        const eventDate = new Date(response.data.date).toISOString().split('T')[0];
-        if (today === eventDate) {
-          setIsEventToday(true);
+        const now = new Date();
+        const start = new Date(response.data.startTime);
+        const end = new Date(response.data.endTime);
+        if (now >= start && now <= end) {
+          setIsAttendanceActive(true);
+        } else if (now < start) {
+          setTimeMessage(`Attendance will open on ${start.toLocaleString()}.`);
+        } else {
+          setTimeMessage("The attendance period for this event has closed.");
         }
         const initialAttendance = {};
         response.data.attendees.forEach(attendee => {
@@ -31,7 +37,7 @@ export default function AttendancePage() {
         });
         setAttendance(initialAttendance);
       } catch (err) {
-        setError("Could not load event data.");
+        setError("err.response?.data?.message"||"Could not load event data.");
       } finally {
         setLoading(false);
       }
@@ -60,21 +66,21 @@ export default function AttendancePage() {
   if (error) return <div className="error-message">{error}</div>;
   if (!event) return <h2>Event Not Found</h2>;
 
-    if (!isEventToday) {
-    return (
+    if (!isAttendanceActive) {
+      return (
       <div className="attendance-container">
         <div className="attendance-header">
           <h1>Manage Attendance</h1>
           <h2>{event.name}</h2>
         </div>
         <div className="empty-state">
-          <p>You can only manage attendance on the day of the event.</p>
-          <p>Please come back on {new Date(event.date).toLocaleDateString()}.</p>
+          <h3>Attendance Not Open</h3>
+          <p>{timeMessage}</p>
           <button className="btn" onClick={() => navigate('/dashboard')}>Back to Dashboard</button>
         </div>
       </div>
-    );
-  }
+      );
+    }
   return (
     <div className="attendance-container">
       <div className="attendance-header">
@@ -86,6 +92,10 @@ export default function AttendancePage() {
         {event.attendees.map(attendee => (
           <div key={attendee._id} className="user-row">
             <span className="user-name">{attendee.displayName}</span>
+            <br></br>
+            <span className="user-code">
+                {generateTicketCode(event._id, attendee._id)}
+              </span>
             <div className="attendance-radios">
               <label>
                 <input type="radio" name={`status-${attendee._id}`} checked={attendance[attendee._id] === 'present'} onChange={() => handleStatusChange(attendee._id, 'present')} /> Present

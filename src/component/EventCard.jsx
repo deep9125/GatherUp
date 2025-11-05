@@ -1,7 +1,7 @@
 import React from 'react';
 import '../styles/Home.css';
 export default function EventCard({ event, onViewDetails, onJoin }) {
-  const eventDate = new Date(event.date).toLocaleDateString("en-US", {
+  const eventDate = new Date(event.startTime).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric"

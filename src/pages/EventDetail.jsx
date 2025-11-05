@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { useAppContext } from '../context/AppContext';
+import { useTicketCode } from '../hooks/useTicketCode';
 import axios from 'axios';
 import '../styles/Home.css'; 
 import FeedbackForm from './FeedbackForm'; 
@@ -10,7 +11,7 @@ export default function EventDetail() {
   const { id: eventId } = useParams();
   const navigate = useNavigate();
   const { user, triggerRefetch } = useAppContext();
-
+  const ticketCode = useTicketCode(eventId);
   const [event, setEvent] = useState(null);
   const [eventGroup, setEventGroup] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -46,7 +47,7 @@ export default function EventDetail() {
       userRole: currentUserRole,
       hasJoined: event.attendees.some(attendee => attendee._id === currentUserId),
       userRating: event.ratings.find(rating => rating.userId._id === currentUserId),
-      isPastEvent: new Date(event.date) < new Date(),
+      isPastEvent: new Date(event.endTime) < new Date(),
     };
   }, [event, user]);
   const handleDelete = async () => {
@@ -93,7 +94,8 @@ export default function EventDetail() {
     <div className="event-detail-container scrollable">
       <h2 className="event-title">{event.name}</h2>
       <img src={`${API_URL}/${event.imageUrl}`} alt={event.name} className="event-detail-image" />
-      <p><strong>Date:</strong> {new Date(event.date).toLocaleDateString()}</p>
+      <p><strong>Starts:</strong> {new Date(event.startTime).toLocaleString()}</p>
+      <p><strong>Ends:</strong> {new Date(event.endTime).toLocaleString()}</p>
       <div className="event-description"><p>{event.description}</p></div>
       <p><strong>Location:</strong> {event.location}</p>
       <p><strong>Attendees:</strong> {event.attendees.length} / {event.capacity}</p>
@@ -132,12 +134,10 @@ export default function EventDetail() {
               ) : (
                 <div className="user-ticket-info">
                   <h3>Your Ticket is Confirmed!</h3>
-                  <p>Present this QR code at the event entrance.</p>
-                  <div className="ticket-qr-code">
-                    <img 
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=GatherUp-Ticket-EventID:${event._id}-UserID:${userId}`}
-                      alt="Your Event Ticket QR Code" 
-                    />
+                  <p>Present this code at the event entrance.</p>
+                  <div className="ticket-confirmation-code">
+                    <p>Your Confirmation Code</p>
+                    <h3 className="code-text">{ticketCode}</h3>
                   </div>
                    {eventGroup && (
                     <button className="btn secondary" onClick={() => navigate(`/groups/${eventGroup._id}`)}>

@@ -10,7 +10,8 @@ export default function AddEventForm() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
-    date: "",
+    startTime: "",
+    endTime: "",
     location: "",
     description: "",
     capacity: "",
@@ -36,14 +37,21 @@ export default function AddEventForm() {
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.date || !formData.location || !imageFile) {
+    if (!formData.name || !formData.description || !formData.startTime || !formData.endTime || !formData.location || !imageFile || !formData.capacity) {
       toast.error("Please fill in all required fields.");
       return;
+    }
+    const start = new Date(formData.startTime);
+    const end = new Date(formData.endTime);
+    if (start >= end) {
+      toast.error("Event start time must be before the end time.");
+      return; 
     }
     setError("");
     const eventData = new FormData();
     eventData.append('name', formData.name);
-    eventData.append('date', formData.date);
+    eventData.append('startTime', formData.startTime);
+    eventData.append('endTime', formData.endTime);
     eventData.append('location', formData.location);
     eventData.append('description', formData.description);
     eventData.append('capacity', formData.capacity);
@@ -72,9 +80,15 @@ export default function AddEventForm() {
           <label htmlFor="name">Event Name</label>
           <input type="text" id="name" name="name" value={formData.name} onChange={handleChange} required />
         </div>
-        <div className="form-group">
-          <label htmlFor="date">Date</label>
-          <input type="date" id="date" name="date" value={formData.date} onChange={handleChange} required />
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="startTime">Start Time</label>
+            <input type="datetime-local" id="startTime" name="startTime" value={formData.startTime} onChange={handleChange} required />
+          </div>
+          <div className="form-group">
+            <label htmlFor="endTime">End Time</label>
+            <input type="datetime-local" id="endTime" name="endTime" value={formData.endTime} onChange={handleChange} required />
+          </div>
         </div>
         <div className="form-group">
           <label htmlFor="location">Location</label>

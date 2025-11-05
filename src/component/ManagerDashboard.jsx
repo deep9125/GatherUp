@@ -31,10 +31,13 @@ export default function ManagerDashboard() {
 
   const stats = useMemo(() => {
     const totalEvents = myCreatedEvents.length;
-    const totalAttendees = myCreatedEvents.reduce((sum, event) => sum + (event.attendees || 0), 0);
+    const totalAttendees = myCreatedEvents.reduce((sum, event) => sum + (event.attendees?.length || 0), 0);
     const averageAttendance = totalEvents > 0 ? Math.round(totalAttendees / totalEvents) : 0;
-    
-    return { totalEvents, totalAttendees, averageAttendance };
+    const totalRevenue = myCreatedEvents.reduce((sum, event) => {
+      const eventRevenue = (event.ticketPrice || 0) * (event.attendees?.length || 0);
+      return sum + eventRevenue;
+    }, 0);
+    return { totalEvents, totalAttendees, averageAttendance,totalRevenue };
   }, [myCreatedEvents]);
   if (loading) return <div>Loading dashboard...</div>;
   if (error) return <div className="error-message">{error}</div>;
@@ -59,7 +62,22 @@ export default function ManagerDashboard() {
       <p>Welcome, <strong>{user.displayName}</strong>! Here's an overview of your events.</p>
       
       <div className="dashboard-stats">
-        {/* ... stat cards ... */}
+        <div className="stat-card">
+          <h4 className="stat-title">Total Events</h4>
+          <p className="stat-value">{stats.totalEvents}</p>
+        </div>
+        <div className="stat-card">
+          <h4 className="stat-title">Total Registrations</h4>
+          <p className="stat-value">{stats.totalAttendees}</p>
+        </div>
+        <div className="stat-card">
+          <h4 className="stat-title">Avg. Registrations</h4>
+          <p className="stat-value">{stats.averageAttendance}</p>
+        </div>
+        <div className="stat-card">
+          <h4 className="stat-title">Total Revenue</h4>
+          <p className="stat-value">${stats.totalRevenue.toFixed(2)}</p>
+        </div>
       </div>
 
       <div className="dashboard-event-list">
@@ -78,7 +96,7 @@ export default function ManagerDashboard() {
               {myCreatedEvents.map(event => (
                 <tr key={event._id}>
                   <td>{event.name}</td>
-                  <td>{new Date(event.date).toLocaleDateString()}</td>
+                  <td>{new Date(event.startTime).toLocaleDateString()}</td>
                   <td>{event.attendees?.length || 0} / {event.capacity}</td>
                   <td>
                     <button className="btn-link" onClick={() => navigate(`/manage/attendance/${event._id}`)}> Attendance</button>

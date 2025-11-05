@@ -3,7 +3,13 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast'; 
 import axios from 'axios';
 import '../styles/Home.css'; 
-
+const toLocalISOString = (dateString) => {
+  if (!dateString) return "";
+  const date = new Date(dateString);
+  const tzOffset = date.getTimezoneOffset() * 60000; 
+  const localDate = new Date(date.getTime() - tzOffset);
+  return localDate.toISOString().slice(0, 16);
+};
 const API_URL = 'http://localhost:3000';
 export default function EditEventForm() {
   const { id: eventId } = useParams(); 
@@ -20,8 +26,8 @@ export default function EditEventForm() {
         setLoading(true);
         const response = await axios.get(`${API_URL}/api/events/${eventId}`);
         const eventToEdit = response.data;
-        const eventDate = new Date(eventToEdit.date).toISOString().split('T')[0];
-        setFormData({ ...eventToEdit, date: eventDate });
+        setFormData({ ...eventToEdit, startTime: toLocalISOString(eventToEdit.startTime),
+          endTime: toLocalISOString(eventToEdit.endTime), });
         setImagePreview(`${API_URL}/${eventToEdit.imageUrl}`); 
       } catch (err) {
         setError('Failed to load event data.');
@@ -50,9 +56,16 @@ export default function EditEventForm() {
 
  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.date || !formData.location) {
+    if (!formData.name || !formData.startTime || !formData.endTime || !formData.location) {
       toast.error('Please fill in all required fields.');
       return;
+    }
+    const start = new Date(formData.startTime);
+    const end = new Date(formData.endTime);
+
+    if (start >= end) {
+      toast.error("Event start time must be before the end time.");
+      return; 
     }
     setLoading(true);
     const eventData = new FormData();
@@ -86,9 +99,15 @@ export default function EditEventForm() {
           <input type="text" id="name" name="name" value={formData.name} onChange={handleChange} required />
         </div>
         
-        <div className="form-group">
-          <label htmlFor="date">Date</label>
-          <input type="date" id="date" name="date" value={formData.date} onChange={handleChange} required />
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="startTime">Start Time</label>
+            <input type="datetime-local" id="startTime" name="startTime" value={formData.startTime} onChange={handleChange} required />
+          </div>
+          <div className="form-group">
+            <label htmlFor="endTime">End Time</label>
+            <input type="datetime-local" id="endTime" name="endTime" value={formData.endTime} onChange={handleChange} required />
+          </div>
         </div>
 
         <div className="form-group">

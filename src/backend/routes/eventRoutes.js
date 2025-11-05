@@ -2,7 +2,11 @@ import express from 'express';
 import multer from 'multer';
 import path from 'path';
 import Event from '../models/eventModel.js';
-
+import User from '../models/userModel.js';
+import { generateTicketCode } from '../utils/codeGenerator.js';
+import { sendEmail } from '../utils/emailService.js';
+import Group from '../models/groupModel.js';
+import fs from 'fs';
 const route = express.Router();
 
 const storage = multer.diskStorage({
@@ -37,8 +41,23 @@ route.get('/:eventId', async (req, res) => {
 
 route.delete('/:eventId', async (req, res) => {
   try {
-    const event = await Event.findByIdAndDelete(req.params.eventId);
+    const event = await Event.findById(req.params.eventId);
     if (!event) return res.status(404).json({ message: 'Event not found' });
+    const imageUrl = event.imageUrl;
+    await Event.findByIdAndDelete(req.params.eventId);
+    Group.findOneAndDelete({ eventId: req.params.eventId }).catch(err => {
+      console.error('Error deleting associated group:', err);
+    });
+    if (imageUrl) {
+      const imagePath = path.resolve(imageUrl);
+      fs.unlink(imagePath, (err) => {
+        if (err) {
+          console.error(`Failed to delete image: ${imagePath}`, err.message);
+        } else {
+          console.log(`Successfully deleted image: ${imagePath}`);
+        }
+      });
+    }
     res.json({ message: 'Event deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Server Error' });
@@ -47,13 +66,13 @@ route.delete('/:eventId', async (req, res) => {
 
 route.post('/addEvent', upload.single('eventImage'), async (req, res) => {
   try {
-    const { name, description, date, location, capacity, managerId,ticketPrice } = req.body;
+    const { name, description, startTime,endTime, location, capacity, managerId,ticketPrice } = req.body;
     if (!req.file) return res.status(400).json({ message: 'Please upload an event image' });
-    if (!name || !description || !date || !location || !capacity || !managerId || !ticketPrice) {
+    if (!name || !description || !startTime || !endTime || !location || !capacity || !managerId || !ticketPrice) {
       return res.status(400).json({ message: 'Please enter all required fields' });
     }
     const newEvent = new Event({
-      name, description, date, location, capacity, managerId,ticketPrice,
+      name, description, startTime,endTime, location, capacity, managerId,ticketPrice,
       imageUrl: req.file.path,
     });
     await newEvent.save();
@@ -66,8 +85,8 @@ route.post('/addEvent', upload.single('eventImage'), async (req, res) => {
 
 route.put('/:eventId', upload.single('eventImage'), async (req, res) => {
   try {
-    const { name, description, date, location, capacity,ticketPrice  } = req.body;
-    const updateData = { name, description, date, location, capacity,ticketPrice  };
+    const { name, description,startTime,endTime, location, capacity,ticketPrice  } = req.body;
+    const updateData = { name, description, startTime,endTime, location, capacity,ticketPrice  };
     if (req.file) {
       updateData.imageUrl = req.file.path;
     }
@@ -85,15 +104,52 @@ route.put('/:eventId', upload.single('eventImage'), async (req, res) => {
 
 route.post('/:eventId/join', async (req, res) => {
   try {
-    const { userId } = req.body; // User ID should be sent in the request body
+    const { userId } = req.body; 
     const event = await Event.findById(req.params.eventId);
     if (!event) return res.status(404).json({ message: 'Event not found' });
     if (!event.attendees.includes(userId)) {
       event.attendees.push(userId);
       await event.save();
+      const user = await User.findById(userId);
+      if (user && user.email) {
+      const ticketCode = generateTicketCode(event._id, user._id);
+      const eventTime = new Date(event.startTime).toLocaleString('en-US', {
+        dateStyle: 'medium',
+        timeStyle: 'short'
+      });
+      const subject = `Your Ticket for ${event.name}!`;
+      const html = `
+        <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+          <h2>Booking Confirmed!</h2>
+          <p>Hi ${user.displayName},</p>
+          <p>You're all set for <strong>${event.name}</strong>. We're excited to see you there!</p>
+          
+          <h3>Event Details:</h3>
+          <ul>
+            <li><strong>Event:</strong> ${event.name}</li>
+            <li><strong>When:</strong> ${eventTime}</li>
+            <li><strong>Where:</strong> ${event.location}</li>
+          </ul>
+          
+          <h3>Your Confirmation Code:</h3>
+          <p>Please present this code at the event entrance.</p>
+          <h2 style="color: #333; font-family: monospace; font-size: 24px; background: #f4f4f4; padding: 10px; border-radius: 5px;">
+            ${ticketCode}
+          </h2>
+          
+          <p>See you soon,<br/>The GatherUp Team</p>
+        </div>
+      `;
+      sendEmail({
+        to: user.email,
+        subject: subject,
+        html: html,
+      });
+    }
     }
     res.json({ message: 'Successfully joined event', event });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: 'Server Error' });
   }
 });

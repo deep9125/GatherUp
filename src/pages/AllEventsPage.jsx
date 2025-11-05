@@ -30,11 +30,10 @@ export default function AllEventsPage() {
  const availableEvents = useMemo(() => {
     if (!user || !allEvents) return [];
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const userId = user.user?.id || user._id;
+    const userId = user?._id;
     return allEvents.filter(event => {
       const notJoined = !event.attendees.includes(userId);
-      const isUpcoming = new Date(event.date) >= today;
+      const isUpcoming = new Date(event.startTime) >= today;
       return notJoined && isUpcoming;
     });
   }, [allEvents, user]);

@@ -31,14 +31,14 @@ export default function UserDashboard() {
   const nextUpcomingEvent = useMemo(() => {
     if (!joinedEvents || joinedEvents.length === 0) return null;
     const futureEvents = joinedEvents
-      .filter(event => new Date(event.date) > new Date())
+      .filter(event => new Date(event.startTime) > new Date())
       .sort((a, b) => new Date(a.date) - new Date(b.date));
     return futureEvents.length > 0 ? futureEvents[0] : null;
   }, [joinedEvents]);
 
   const eventsThisMonth = useMemo(() => {
     const currentMonth = new Date().getMonth();
-    return joinedEvents.filter(event => new Date(event.date).getMonth() === currentMonth).length;
+    return joinedEvents.filter(event => new Date(event.startTime).getMonth() === currentMonth).length;
   }, [joinedEvents]);
   if (loading) return <div>Loading your dashboard...</div>;
   if (error) return <div className="error-message">{error}</div>;
@@ -70,7 +70,7 @@ export default function UserDashboard() {
           <h3>🎉 {nextUpcomingEvent ? nextUpcomingEvent.name : 'None!'}</h3>
           <p>
             Next Upcoming Event: 
-            <strong>{nextUpcomingEvent ? new Date(nextUpcomingEvent.date).toLocaleDateString() : ' N/A'}</strong>
+            <strong>{nextUpcomingEvent ? new Date(nextUpcomingEvent.startTime).toLocaleDateString() : ' N/A'}</strong>
           </p>
         </button>
         <div className="stat-card">

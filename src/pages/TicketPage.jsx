@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
+import { useTicketCode } from '../hooks/useTicketCode';
 import axios from 'axios';
 import '../styles/Home.css'; 
 
@@ -11,6 +12,8 @@ export default function TicketPage() {
   const navigate = useNavigate();
   const { user } = useAppContext();
 
+  const ticketCode = useTicketCode(eventId);
+  
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -45,7 +48,7 @@ export default function TicketPage() {
   }
   
   const userId = user?._id;
-  const eventDate = new Date(event.date).toLocaleDateString("en-US", {
+  const eventDate = new Date(event.startTime  ).toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -58,16 +61,14 @@ export default function TicketPage() {
         <p className="ticket-subheader">You're all set for the event.</p>
         
         <div className="ticket-event-details">
-          <h3>{event.name}</h3>
-          <p>{eventDate}</p>
-          <p>{event.location}</p>
+          <h3>Event:{event.name}</h3>
+          <p>Starts:{eventDate}</p>
+          <p>Location:{event.location}</p>
         </div>
 
-        <div className="ticket-qr-code">
-          <img 
-            src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=GatherUp-Ticket-EventID:${event._id}-UserID:${userId}`}
-            alt="Your Event Ticket QR Code" 
-          />
+       <div className="ticket-confirmation-code">
+          <p>Your Confirmation Code</p>
+          <h3 className="code-text">{ticketCode}</h3>
         </div>
         
         <button className="btn primary full-width" onClick={() => navigate('/events')}>
