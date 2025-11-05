@@ -90,7 +90,7 @@ export default function EditEventForm() {
   if (error || !formData) return <div className="error-message">{error || "Event not found."}</div>;
   return (
     <div className="add-event-form-container">
-      <h2>Edit Event: {formData.name}</h2>
+      <center><h2>Edit Event: {formData.name}</h2></center>
       <form onSubmit={handleSubmit} noValidate>
         {error && <p className="form-error">{error}</p>}
 

@@ -59,17 +59,17 @@ export default function ViewGroupPage() {
   const currentUserId = user?.user?.id || user?._id;
   return (
     <div className="view-group-form">
-      <h2>Group Chat for {group.name}</h2>
+      <center><h2>{group.name}</h2></center>
       <div className="chat-box" ref={chatBoxRef}>
         {group.messages.map((msg) => (
           <div
             key={msg._id}
-            className={`chat-message ${msg.userId?._id === currentUserId ? "my-msg" : "other-msg"}`}
+            className="chat-message"
           >
-            <div className="message-sender-info">
+            <div className={`message-sender-info ${msg.userId?.role === 'Manager' ? "Manager" : "User"}`}>
               <strong>{msg.userId?.displayName || 'Unknown User'}</strong>
             </div>
-            <p>{msg.text}</p>
+            <p className="message-text">{msg.text}</p>
           </div>
         ))}
       </div>
@@ -82,9 +82,7 @@ export default function ViewGroupPage() {
         />
         <button type="submit" className="btn">Send</button>
       </form>
-      <button className="btn cancel-btn" onClick={() => navigate(`/events/${group.eventId}`)}>
-        Back to Event
-      </button>
+      
     </div>
   );
 }
