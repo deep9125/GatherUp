@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect ,useMemo} from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import axios from 'axios';
@@ -14,6 +14,7 @@ export default function AttendancePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [timeMessage, setTimeMessage] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -37,14 +38,21 @@ export default function AttendancePage() {
         });
         setAttendance(initialAttendance);
       } catch (err) {
-        setError("err.response?.data?.message"||"Could not load event data.");
+        setError(err.response?.data?.message || "Could not load event data.");
       } finally {
         setLoading(false);
       }
     };
     fetchEvent();
   }, [eventId]);
-
+  const filteredAttendees = useMemo(() => {
+    if (!event) return [];
+    
+    return event.attendees.filter(attendee => {
+      const ticketCode = generateTicketCode(event._id, attendee._id);
+      return ticketCode.toLowerCase().includes(searchTerm.toLowerCase());
+    });
+  }, [event, searchTerm]);
   const handleStatusChange = (userId, status) => {
     setAttendance(prev => ({ ...prev, [userId]: status }));
   };
@@ -88,24 +96,40 @@ export default function AttendancePage() {
         <h2>{event.name}</h2>
       </div>
 
+      <div className="form-group" style={{ margin: '20px 0' }}>
+        <input
+          type="text"
+          placeholder="Search by Ticket Code (e.g., GUP-1234)"
+          className="form-control" 
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{ width: '100%', padding: '10px' }} 
+        />
+      </div>
+
       <div className="user-list">
-        {event.attendees.map(attendee => (
-          <div key={attendee._id} className="user-row">
-            <span className="user-name">{attendee.displayName}</span>
-            <br></br>
-            <span className="user-code">
-                {generateTicketCode(event._id, attendee._id)}
-              </span>
-            <div className="attendance-radios">
-              <label>
-                <input type="radio" name={`status-${attendee._id}`} checked={attendance[attendee._id] === 'present'} onChange={() => handleStatusChange(attendee._id, 'present')} /> Present
-              </label>
-              <label>
-                <input type="radio" name={`status-${attendee._id}`} checked={attendance[attendee._id] === 'absent'} onChange={() => handleStatusChange(attendee._id, 'absent')} /> Absent
-              </label>
+        {filteredAttendees.length > 0 ? (
+          filteredAttendees.map(attendee => (
+            <div key={attendee._id} className="user-row">
+              <div className="user-info">
+                <span className="user-name">{attendee.displayName}</span>
+                <span className="user-code">
+                  {generateTicketCode(event._id, attendee._id)}
+                </span>
+              </div>
+              <div className="attendance-radios">
+                <label>
+                  <input type="radio" name={`status-${attendee._id}`} checked={attendance[attendee._id] === 'present'} onChange={() => handleStatusChange(attendee._id, 'present')} /> Present
+                </label>
+                <label>
+                  <input type="radio" name={`status-${attendee._id}`} checked={attendance[attendee._id] === 'absent'} onChange={() => handleStatusChange(attendee._id, 'absent')} /> Absent
+                </label>
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        ) : (
+          <p>No attendees found matching "{searchTerm}".</p>
+        )}
       </div>
       
       <div className="form-actions">

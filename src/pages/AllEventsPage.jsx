@@ -13,6 +13,7 @@ export default function AllEventsPage() {
   const [allEvents, setAllEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchInput, setSearchInput] = useState("");
   useEffect(() => {
   const fetchEvents = async () => {
     try {
@@ -34,9 +35,10 @@ export default function AllEventsPage() {
     return allEvents.filter(event => {
       const notJoined = !event.attendees.includes(userId);
       const isUpcoming = new Date(event.startTime) >= today;
-      return notJoined && isUpcoming;
+      const matchesSearch = event.name.toLowerCase().includes(searchInput.toLowerCase())
+      return notJoined && isUpcoming && matchesSearch;
     });
-  }, [allEvents, user]);
+  }, [allEvents, user , searchInput]);
   const handleJoinEvent = async (eventToJoin) => {
     if (!user) {
       toast.error("You must be logged in to join an event.");
@@ -62,6 +64,15 @@ export default function AllEventsPage() {
 
   return (
     <div className="event-grid-container">
+      <div className="search-bar-container" style={{ margin: '20px 0' }}>
+        <input
+          type="text"
+          placeholder="Search by name "
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          style={{ width: '100%', padding: '10px' }}
+        />
+      </div>
       <h2>Available Events ({availableEvents.length})</h2>
       <div className="event-grid">
         {availableEvents.map(event => (
