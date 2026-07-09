@@ -2,9 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import EventCard from '../component/EventCard';
-import axios from 'axios';
-
-const API_URL = 'http://localhost:3000/api';
+import api from '../utils/api';
 
 export default function MyEventsPage() {
   const { user } = useAppContext();
@@ -25,7 +23,7 @@ export default function MyEventsPage() {
     const fetchJoinedEvents = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${API_URL}/users/${userId}/events`);
+        const response = await api.get(`/users/${userId}/events`);
         setJoinedEvents(response.data);
       } catch (err) {
         setError("Could not fetch your events.");

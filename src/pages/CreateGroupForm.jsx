@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import { toast } from 'react-hot-toast';
-import axios from 'axios';
-const API_URL = 'http://localhost:3000/api';
+import api from '../utils/api';
 export default function CreateGroupPage() {
   const { id: eventId } = useParams();
   const navigate = useNavigate();
@@ -25,7 +24,7 @@ export default function CreateGroupPage() {
     };
 
     try {
-      const response = await axios.post(`${API_URL}/groups`, newGroupData);
+      const response = await api.post('/groups', newGroupData);
       const newGroup = response.data;
       
       toast.success(`Group "${newGroup.name}" created!`);

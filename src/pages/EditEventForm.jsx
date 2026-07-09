@@ -1,7 +1,7 @@
 import React,{useState,useEffect} from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast'; 
-import axios from 'axios';
+import api, { SERVER_URL } from '../utils/api';
 import '../styles/Home.css'; 
 const toLocalISOString = (dateString) => {
   if (!dateString) return "";
@@ -10,7 +10,6 @@ const toLocalISOString = (dateString) => {
   const localDate = new Date(date.getTime() - tzOffset);
   return localDate.toISOString().slice(0, 16);
 };
-const API_URL = 'http://localhost:3000';
 export default function EditEventForm() {
   const { id: eventId } = useParams(); 
   const navigate = useNavigate();
@@ -24,11 +23,11 @@ export default function EditEventForm() {
     const fetchEvent = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${API_URL}/api/events/${eventId}`);
+        const response = await api.get(`/events/${eventId}`);
         const eventToEdit = response.data;
         setFormData({ ...eventToEdit, startTime: toLocalISOString(eventToEdit.startTime),
           endTime: toLocalISOString(eventToEdit.endTime), });
-        setImagePreview(`${API_URL}/${eventToEdit.imageUrl}`); 
+        setImagePreview(`${SERVER_URL}/${eventToEdit.imageUrl}`); 
       } catch (err) {
         setError('Failed to load event data.');
         console.error(err);
@@ -76,7 +75,7 @@ export default function EditEventForm() {
       eventData.append('eventImage', imageFile);
     }
     try {
-      const response = await axios.put(`${API_URL}/api/events/${eventId}`, eventData);
+      const response = await api.put(`/events/${eventId}`, eventData);
       toast.success('Event updated successfully!');
       navigate(`/events/${response.data._id}`);
     } catch (err) {
@@ -153,4 +152,3 @@ export default function EditEventForm() {
     </div>
   );
 }
-

@@ -1,8 +1,7 @@
 import React , { useState, useEffect }from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext'; 
-import axios from 'axios';
-const API_URL = 'http://localhost:3000/api';
+import api from '../utils/api';
 export default function ManagerSidebar() {
     const { user, refetchTrigger } = useAppContext();
     const navigate = useNavigate();
@@ -19,7 +18,7 @@ export default function ManagerSidebar() {
     const fetchManagerEvents = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${API_URL}/events/manager/${managerId}`);
+        const response = await api.get(`/events/manager/${managerId}`);
         setManagerEvents(response.data);
       } catch (err) {
         setError("Could not load events.");
@@ -58,4 +57,3 @@ export default function ManagerSidebar() {
         </>
     );
 }
-

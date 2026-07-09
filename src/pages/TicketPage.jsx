@@ -2,10 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import { useTicketCode } from '../hooks/useTicketCode';
-import axios from 'axios';
+import api from '../utils/api';
 import '../styles/Home.css'; 
-
-const API_URL = 'http://localhost:3000/api';
 
 export default function TicketPage() {
   const { id: eventId } = useParams(); 
@@ -21,7 +19,7 @@ export default function TicketPage() {
     const fetchEvent = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${API_URL}/events/${eventId}`);
+        const response = await api.get(`/events/${eventId}`);
         setEvent(response.data);
       } catch (err) {
         setError('Could not find the event for this ticket.');

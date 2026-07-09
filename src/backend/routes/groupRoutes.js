@@ -1,6 +1,7 @@
 import express from 'express';
 import Group from '../models/groupModel.js';
-import User from '../models/userModel.js'; 
+import User from '../models/userModel.js';
+import { protect } from '../middleware/auth.js';
 
 const route = express.Router();
 
@@ -29,7 +30,7 @@ route.get('/:groupId', async (req, res) => {
   }
 });
 
-route.post('/', async (req, res) => {
+route.post('/', protect, async (req, res) => {
   try {
     const { name, eventId, createdBy } = req.body;
     if (!name || !eventId || !createdBy) {
@@ -49,7 +50,7 @@ route.post('/', async (req, res) => {
   }
 });
 
-route.post('/:groupId/messages', async (req, res) => {
+route.post('/:groupId/messages', protect, async (req, res) => {
   try {
     const { userId, username, text } = req.body;
     if (!userId || !username || !text) {

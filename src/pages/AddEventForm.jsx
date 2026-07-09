@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../utils/api';
 import { useAppContext } from '../context/AppContext'; 
 import { toast } from 'react-hot-toast';
 import '../styles/Home.css'; 
-const API_URL = 'http://localhost:3000/api';
 export default function AddEventForm() {
   const { user, triggerRefetch  } = useAppContext();
   const navigate = useNavigate();
@@ -60,7 +59,7 @@ export default function AddEventForm() {
     eventData.append('eventImage', imageFile);
     eventData.append('ticketPrice', formData.ticketPrice || 0);
     try {
-      const response = await axios.post(`${API_URL}/events/addEvent`, eventData);
+      const response = await api.post('/events/addEvent', eventData);
       toast.success('Event created successfully!');
       triggerRefetch();
       navigate(`/events/${response.data._id}`); 
@@ -128,4 +127,3 @@ export default function AddEventForm() {
     </div>
   );
 }
-

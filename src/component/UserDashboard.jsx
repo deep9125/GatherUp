@@ -1,9 +1,8 @@
 import React, {useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../utils/api';
 import { useAppContext } from '../context/AppContext'; 
 import '../styles/Home.css'; 
-const API_URL = 'http://localhost:3000/api';
 export default function UserDashboard() {
   const { user } = useAppContext();
   const navigate = useNavigate();
@@ -17,7 +16,7 @@ export default function UserDashboard() {
     const fetchJoinedEvents = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${API_URL}/users/${userId}/events`);
+        const response = await api.get(`/users/${userId}/events`);
         setJoinedEvents(response.data);
       } catch (err) {
         setError("Could not fetch your dashboard data.");
@@ -86,4 +85,3 @@ export default function UserDashboard() {
     </div>
   );
 }
-

@@ -3,10 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { useAppContext } from '../context/AppContext';
 import { useTicketCode } from '../hooks/useTicketCode';
-import axios from 'axios';
+import api, { SERVER_URL } from '../utils/api';
 import '../styles/Home.css'; 
 import FeedbackForm from './FeedbackForm'; 
-const API_URL = 'http://localhost:3000'; 
 export default function EventDetail() {
   const { id: eventId } = useParams();
   const navigate = useNavigate();
@@ -20,9 +19,9 @@ export default function EventDetail() {
     const fetchEvent = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${API_URL}/api/events/${eventId}`);
+        const response = await api.get(`/events/${eventId}`);
         setEvent(response.data);
-        const groupResponse = await axios.get(`${API_URL}/api/groups/event/${eventId}`);
+        const groupResponse = await api.get(`/groups/event/${eventId}`);
         if (groupResponse.data.length > 0) {
           setEventGroup(groupResponse.data[0]); 
         }
@@ -53,7 +52,7 @@ export default function EventDetail() {
   const handleDelete = async () => {
     if (window.confirm(`Are you sure you want to delete "${event.name}"?`)) {
       try {
-        await axios.delete(`${API_URL}/api/events/${eventId}`);
+        await api.delete(`/events/${eventId}`);
         toast.success('Event deleted successfully.');
         triggerRefetch();
         navigate('/dashboard');
@@ -65,7 +64,7 @@ export default function EventDetail() {
 
   const handleJoin = async () => {
     try {
-      await axios.post(`${API_URL}/api/events/${eventId}/join`, { userId });
+      await api.post(`/events/${eventId}/join`, { userId });
       toast.success(`Successfully joined "${event.name}"!`);
       navigate(`/ticket/${eventId}`);
     } catch (err) {
@@ -75,13 +74,13 @@ export default function EventDetail() {
 
   const handleRateEvent = async (ratingData) => {
     try {
-      await axios.post(`${API_URL}/api/events/${eventId}/rate`, { 
+      await api.post(`/events/${eventId}/rate`, { 
         userId, 
         score: ratingData.rating, 
         comment: ratingData.comment 
       });
       toast.success("Thank you for your feedback!");
-      const response = await axios.get(`${API_URL}/api/events/${eventId}`);
+      const response = await api.get(`/events/${eventId}`);
       setEvent(response.data);
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to submit rating.");
@@ -93,7 +92,7 @@ export default function EventDetail() {
   return (
     <div className="event-detail-container scrollable">
       <h2 className="event-title">{event.name}</h2>
-      <img src={`${API_URL}/${event.imageUrl}`} alt={event.name} className="event-detail-image" />
+      <img src={`${SERVER_URL}/${event.imageUrl}`} alt={event.name} className="event-detail-image" />
       <p><strong>Starts:</strong> {new Date(event.startTime).toLocaleString()}</p>
       <p><strong>Ends:</strong> {new Date(event.endTime).toLocaleString()}</p>
       <div className="event-description"><p>{event.description}</p></div>

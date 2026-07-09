@@ -2,8 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext'; 
 import '../styles/Home.css';
-import axios from 'axios';
-const API_URL = 'http://localhost:3000/api';
+import api from '../utils/api';
 export default function ManagerDashboard() {
   const { user } = useAppContext();
   const navigate = useNavigate();
@@ -17,7 +16,7 @@ export default function ManagerDashboard() {
     const fetchManagerEvents = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${API_URL}/events/manager/${managerId}`);
+        const response = await api.get(`/events/manager/${managerId}`);
         setMyCreatedEvents(response.data);
       } catch (err) {
         setError("Could not fetch dashboard data.");

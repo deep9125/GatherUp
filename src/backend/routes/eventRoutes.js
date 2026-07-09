@@ -7,6 +7,7 @@ import { generateTicketCode } from '../utils/codeGenerator.js';
 import { sendEmail } from '../utils/emailService.js';
 import Group from '../models/groupModel.js';
 import fs from 'fs';
+import { protect, authorize } from '../middleware/auth.js';
 const route = express.Router();
 
 const storage = multer.diskStorage({
@@ -39,7 +40,7 @@ route.get('/:eventId', async (req, res) => {
   }
 });
 
-route.delete('/:eventId', async (req, res) => {
+route.delete('/:eventId', protect, authorize('Manager'), async (req, res) => {
   try {
     const event = await Event.findById(req.params.eventId);
     if (!event) return res.status(404).json({ message: 'Event not found' });
@@ -64,7 +65,7 @@ route.delete('/:eventId', async (req, res) => {
   }
 });
 
-route.post('/addEvent', upload.single('eventImage'), async (req, res) => {
+route.post('/addEvent', protect, authorize('Manager'), upload.single('eventImage'), async (req, res) => {
   try {
     const { name, description, startTime,endTime, location, capacity, managerId,ticketPrice } = req.body;
     if (!req.file) return res.status(400).json({ message: 'Please upload an event image' });
@@ -83,7 +84,7 @@ route.post('/addEvent', upload.single('eventImage'), async (req, res) => {
   }
 });
 
-route.put('/:eventId', upload.single('eventImage'), async (req, res) => {
+route.put('/:eventId', protect, authorize('Manager'), upload.single('eventImage'), async (req, res) => {
   try {
     const { name, description,startTime,endTime, location, capacity,ticketPrice  } = req.body;
     const updateData = { name, description, startTime,endTime, location, capacity,ticketPrice  };
@@ -102,9 +103,14 @@ route.put('/:eventId', upload.single('eventImage'), async (req, res) => {
   }
 });
 
-route.post('/:eventId/join', async (req, res) => {
+route.post('/:eventId/join', protect, async (req, res) => {
   try {
-    const { userId } = req.body; 
+    const { userId } = req.body;
+    // A logged-in user should only ever be able to book a ticket for themselves,
+    // not for an arbitrary userId they pass in the body.
+    if (req.user.id !== userId) {
+      return res.status(403).json({ message: 'You can only book a ticket for your own account' });
+    }
     const event = await Event.findById(req.params.eventId);
     if (!event) return res.status(404).json({ message: 'Event not found' });
     if (!event.attendees.includes(userId)) {
@@ -154,9 +160,12 @@ route.post('/:eventId/join', async (req, res) => {
   }
 });
 
-route.post('/:eventId/rate', async (req, res) => {
+route.post('/:eventId/rate', protect, async (req, res) => {
   try {
     const { userId, score, comment } = req.body;
+    if (req.user.id !== userId) {
+      return res.status(403).json({ message: 'You can only submit a rating as yourself' });
+    }
     const event = await Event.findById(req.params.eventId);
     if (!event) return res.status(404).json({ message: 'Event not found' });
     const newRating = { userId, score, comment };
@@ -177,7 +186,7 @@ route.get('/manager/:managerId', async (req, res) => {
   }
 });
 
-route.post('/:eventId/attendance', async (req, res) => 
+route.post('/:eventId/attendance', protect, authorize('Manager'), async (req, res) =>
   {
     try {
     const { presentUserIds, absentUserIds } = req.body;

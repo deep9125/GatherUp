@@ -1,7 +1,5 @@
 import React, { createContext, useReducer,useMemo, useContext,useState } from 'react';
-import axios from 'axios';
-
-const API_URL = 'http://localhost:3000/api';
+import api from '../utils/api';
 
 const initialState = {
   user: JSON.parse(localStorage.getItem('user')) || null,
@@ -51,9 +49,10 @@ export const AppProvider = ({ children }) => {
   const login = async (email, password) => {
     dispatch({ type: 'REQUEST_START' });
     try {
-      const res = await axios.post(`${API_URL}/users/login`, { email, password });
-      const user = res.data;
+      const res = await api.post('/users/login', { email, password });
+      const { token, ...user } = res.data;
       localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('token', token);
       dispatch({ type: 'LOGIN_SUCCESS', payload: user });
     } catch (err) {
       const errorMessage = err.response?.data?.message || 'Login Failed';
@@ -63,9 +62,10 @@ export const AppProvider = ({ children }) => {
   const register = async (userData) => {
     dispatch({ type: 'REQUEST_START' });
     try {
-      const res = await axios.post(`${API_URL}/users/register`, userData);
-      const user = res.data;
+      const res = await api.post('/users/register', userData);
+      const { token, ...user } = res.data;
       localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('token', token);
       dispatch({ type: 'REGISTER_SUCCESS', payload: user });
     } catch (err) {
       const errorMessage = err.response?.data?.message || 'Registration Failed';
@@ -74,6 +74,7 @@ export const AppProvider = ({ children }) => {
   };
   const logout = () => {
     localStorage.removeItem('user');
+    localStorage.removeItem('token');
     dispatch({ type: 'LOGOUT' });
   };
   const value = useMemo(() => ({

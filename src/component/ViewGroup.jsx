@@ -1,11 +1,9 @@
 import React,{ useState, useEffect, useRef } from 'react'; 
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
-import axios from 'axios';
+import api from '../utils/api';
 import { toast } from 'react-hot-toast';
 import '../styles/Home.css';
-
-const API_URL = 'http://localhost:3000/api';
 
 export default function ViewGroupPage() {
   const { id: groupId } = useParams();
@@ -18,7 +16,7 @@ export default function ViewGroupPage() {
   const chatBoxRef = useRef(null);
   const fetchGroup = async () => {
     try {
-      const response = await axios.get(`${API_URL}/groups/${groupId}`);
+      const response = await api.get(`/groups/${groupId}`);
       setGroup(response.data);
     } catch (err) {
       setError("Could not load group data.");
@@ -41,7 +39,7 @@ export default function ViewGroupPage() {
     const currentUserId =  user?._id;
     const currentUsername = user?.displayName;
     try {
-      await axios.post(`${API_URL}/groups/${groupId}/messages`, {
+      await api.post(`/groups/${groupId}/messages`, {
         userId: currentUserId,
         username: currentUsername, 
         text: newMessage.trim(),

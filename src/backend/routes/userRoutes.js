@@ -5,6 +5,16 @@ import jwt from 'jsonwebtoken';
 import Event from '../models/eventModel.js';
 const route = express.Router();
 
+// Builds a signed JWT containing just enough info to check identity + role on
+// every future request. Expires in 7 days, matching how long the frontend keeps it.
+const generateToken = (user) => {
+  return jwt.sign(
+    { id: user._id, role: user.role },
+    process.env.JWT_SECRET,
+    { expiresIn: '7d' }
+  );
+};
+
 route.get('/:displayName', async (req, res) => {
   try {
     const { displayName } = req.params;
@@ -38,6 +48,7 @@ route.post('/register', async (req, res) => {
       displayName: user.displayName,
       email: user.email,
       role: user.role,
+      token: generateToken(user),
     });
   } catch (error) {
     console.error(error);
@@ -64,6 +75,7 @@ route.post('/login', async (req, res) => {
       displayName: user.displayName,
       email: user.email,
       role: user.role,
+      token: generateToken(user),
     });
   } catch (error) {
     console.error("Login error:", error.message);

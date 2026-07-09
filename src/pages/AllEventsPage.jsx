@@ -3,9 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import EventCard from '../component/EventCard';
 import { toast } from 'react-hot-toast';
-import axios from 'axios';
-
-const API_URL = 'http://localhost:3000/api';
+import api from '../utils/api';
 
 export default function AllEventsPage() {
   const { user } = useAppContext();
@@ -18,7 +16,7 @@ export default function AllEventsPage() {
   const fetchEvents = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${API_URL}/events/viewAllEvent`);
+      const response = await api.get('/events/viewAllEvent');
       setAllEvents(response.data);
     } catch (err) {
       setError('Failed to fetch events.');
@@ -45,7 +43,7 @@ export default function AllEventsPage() {
       return;
     }
     try {
-      await axios.post(`${API_URL}/events/${eventToJoin._id}/join`, {
+      await api.post(`/events/${eventToJoin._id}/join`, {
         userId: user._id,
       });
       toast.success(`Successfully joined "${eventToJoin.name}"!`);

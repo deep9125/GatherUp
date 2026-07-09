@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
-import axios from 'axios';
+import api from '../utils/api';
 import '../styles/Home.css';
-const API_URL = 'http://localhost:3000/api';
 export default function EventAnalyticsPage() {
   const { id: eventId } = useParams();
   const navigate = useNavigate();
@@ -15,7 +14,7 @@ useEffect(() => {
     const fetchEvent = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${API_URL}/events/${eventId}`);
+        const response = await api.get(`/events/${eventId}`);
         setEvent(response.data);
       } catch (err) {
         setError("Could not load analytics for this event.");
@@ -72,4 +71,3 @@ useEffect(() => {
     </div>
   );
 }
-

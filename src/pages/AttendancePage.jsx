@@ -1,9 +1,8 @@
 import React, { useState, useEffect ,useMemo} from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-import axios from 'axios';
+import api from '../utils/api';
 import {generateTicketCode} from '../utils/codeGenerator.js';
-const API_URL = 'http://localhost:3000/api';
 export default function AttendancePage() {
   const { id:eventId } = useParams();
   const navigate = useNavigate();
@@ -20,7 +19,7 @@ export default function AttendancePage() {
     const fetchEvent = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${API_URL}/events/${eventId}`);
+        const response = await api.get(`/events/${eventId}`);
         setEvent(response.data);
         const now = new Date();
         const start = new Date(response.data.startTime);
@@ -62,7 +61,7 @@ export default function AttendancePage() {
     const absentUserIds = Object.keys(attendance).filter(id => attendance[id] === 'absent');
     
     try {
-      await axios.post(`${API_URL}/events/${eventId}/attendance`, { presentUserIds, absentUserIds });
+      await api.post(`/events/${eventId}/attendance`, { presentUserIds, absentUserIds });
       toast.success("Attendance saved!");
       navigate(`/manage/analytics/${eventId}`);
     } catch (err) {
